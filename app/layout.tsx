@@ -8,8 +8,11 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const instrumentSerif = Instrument_Serif({ variable: "--font-instrument-serif", subsets: ["latin"], weight: "400", style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://gary-company-brain.vercel.app"),
   title: "Gary · the company brain that never leaves",
   description: "Every company has a Gary: the one who knows why. Gary is an AI agent on a FalkorDB graph of your company's people, systems and decisions.",
+  openGraph: { title: "Gary · the company brain that never leaves", description: "Every company has a Gary. Ours never leaves.", type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
