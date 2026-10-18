@@ -56,5 +56,5 @@ export function Markdown({ text, cites, onCite }: { text: string; cites: Cite[];
     blocks.push(<p key={i}>{h ? <strong>{h[1]}</strong> : inline(line, map, onCite)}</p>);
   });
   flush();
-  return <div className="md text-[14px] leading-relaxed">{blocks}</div>;
+  return <div className="md text-[14.5px] leading-relaxed text-ink-2">{blocks}</div>;
 }

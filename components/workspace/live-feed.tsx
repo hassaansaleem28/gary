@@ -48,7 +48,7 @@ export function LiveFeed({ people, onIngested }: { people: { handle: string; nam
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-4">
       <div>
-        <h3 className="text-sm font-semibold text-white">Live feed: the company keeps talking</h3>
+        <h3 className="text-sm font-semibold text-ink">Live feed: the company keeps talking</h3>
         <p className="mt-1 text-[12.5px] text-muted">
           Post a new Slack message. Gary links it to the graph, extracts decisions against what it already knows, supersedes old ones and flags docs that just went stale. Then ask again.
         </p>
@@ -62,23 +62,23 @@ export function LiveFeed({ people, onIngested }: { people: { handle: string; nam
               setChannel(p.channel);
               setText(p.text);
             }}
-            className="rounded-full border border-line bg-panel-2 px-2.5 py-1 text-[11.5px] text-muted hover:border-accent hover:text-white"
+            className="rounded-full border border-line bg-panel-2 px-2.5 py-1 text-[11.5px] text-muted hover:border-accent hover:text-ink"
           >
             {p.label}
           </button>
         ))}
       </div>
-      <div className="rounded-xl border border-line bg-panel-2/60 p-3">
+      <div className="rounded-xl border border-line bg-panel p-3">
         <div className="mb-2 flex gap-2 text-[12px]">
-          <select value={author} onChange={(e) => setAuthor(e.target.value)} className="rounded-md border border-line bg-black/30 px-2 py-1 text-white">
+          <select value={author} onChange={(e) => setAuthor(e.target.value)} className="rounded-md border border-line bg-panel-2 px-2 py-1 text-ink">
             {people.map((p) => (
               <option key={p.handle} value={p.handle}>
                 {p.name}
               </option>
             ))}
           </select>
-          <div className="flex items-center rounded-md border border-line bg-black/30 px-2 text-muted">
-            #<input value={channel} onChange={(e) => setChannel(e.target.value)} className="w-28 bg-transparent py-1 text-white outline-none" />
+          <div className="flex items-center rounded-md border border-line bg-panel-2 px-2 text-muted">
+            #<input value={channel} onChange={(e) => setChannel(e.target.value)} className="w-28 bg-transparent py-1 text-ink outline-none" />
           </div>
         </div>
         <textarea
@@ -86,16 +86,16 @@ export function LiveFeed({ people, onIngested }: { people: { handle: string; nam
           onChange={(e) => setText(e.target.value)}
           rows={4}
           placeholder="Type a Slack message…"
-          className="w-full resize-none rounded-md border border-line bg-black/30 p-2 text-[13px] text-white outline-none focus:border-accent"
+          className="w-full resize-none rounded-md border border-line bg-panel-2 p-2 text-[13px] text-ink outline-none focus:border-accent"
         />
-        <button onClick={send} disabled={busy || !text.trim()} className="mt-2 rounded-lg bg-accent px-3 py-1.5 text-[12.5px] font-semibold text-black disabled:opacity-40">
+        <button onClick={send} disabled={busy || !text.trim()} className="mt-2 rounded-lg bg-accent px-3 py-1.5 text-[12.5px] font-semibold text-accent-ink disabled:opacity-40">
           {busy ? "Ingesting into the graph…" : "Post to Slack → ingest"}
         </button>
       </div>
       {log.map((r, i) => (
-        <div key={i} className="fade-in rounded-xl border border-line bg-panel-2/60 p-3 text-[12.5px]">
+        <div key={i} className="rounded-xl border border-line bg-panel p-3 text-[12.5px]">
           <div className="text-muted">
-            <span className="text-white">@{r.author}</span> in #{r.channel}: “{r.text.slice(0, 120)}
+            <span className="text-ink">@{r.author}</span> in #{r.channel}: “{r.text.slice(0, 120)}
             {r.text.length > 120 ? "…" : ""}”
           </div>
           {!r.ok && <div className="mt-2 text-bad">Failed: {r.error}</div>}
