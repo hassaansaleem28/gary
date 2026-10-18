@@ -5,7 +5,7 @@
 import { animate, splitText, stagger, svg } from "animejs";
 import { useLenis } from "lenis/react";
 import { ArrowRight, CalendarDays, FileText, GitPullRequest, MessageSquare, Network, Play, Ticket } from "lucide-react";
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { forwardRef, useEffect, useRef, useState, type ReactNode } from "react";
@@ -104,7 +104,7 @@ export function Hero() {
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1, duration: 0.8 }} className="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[12px] text-muted">
             <span>5 sources → 1 graph</span>
-            <span>11 Cypher tools</span>
+            <span>12 Cypher tools</span>
             <span>~20 ms graph time / answer</span>
           </motion.div>
         </div>
@@ -137,6 +137,7 @@ const QUESTIONS = [
   "Who decided our API rate limits, and why?",
   "How do people actually work together here?",
   "How is Kai Johnson connected to the refund policy?",
+  "What was our refund policy on July 1?",
   "Who owns the mobile app?",
 ];
 
@@ -295,7 +296,7 @@ export function HowItWorks() {
     { n: "01", t: "Ingest", d: "Every record becomes a node. Authors, reviewers, assignees and attendees become edges. Threads stay threads." },
     { n: "02", t: "Link", d: "People, systems, projects and topics are matched using a vocabulary read from the graph itself, so the graph teaches the parser." },
     { n: "03", t: "Decide", d: "An LLM extracts decisions while seeing what the graph already believes, writing SUPERSEDES, BECAUSE_OF and ASSERTS edges." },
-    { n: "04", t: "Answer", d: "The agent picks from 11 fixed Cypher tools, never writes Cypher, and every citation and name is verified against the graph." },
+    { n: "04", t: "Answer", d: "The agent picks from 12 fixed Cypher tools, never writes Cypher, and every citation and name is verified against the graph." },
   ];
   const accent = "var(--accent)";
   return (
@@ -511,6 +512,65 @@ function TicketsMini() {
   );
 }
 
+const TM_PHASES = [
+  { date: "3 Feb 2026", pct: 8, belief: ["Full refund within 30 days, no questions asked"], stale: 0 },
+  { date: "16 Jun 2026", pct: 50, belief: ["Monthly plans: 30-day full refund", "Annual plans: prorated refunds"], stale: 3 },
+  { date: "12 Aug 2026", pct: 72, belief: ["Monthly plans: 14 days", "Annual plans: prorated refunds"], stale: 3 },
+];
+
+function TimeMachineMini() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((x) => (x + 1) % TM_PHASES.length), 2300);
+    return () => clearInterval(t);
+  }, []);
+  const ph = TM_PHASES[i];
+  return (
+    <div className="grid h-full gap-5 pt-1 md:grid-cols-[1.2fr_1fr] md:items-center">
+      <div>
+        <div className="font-mono text-[10.5px] tracking-[0.14em] text-muted uppercase">Kitestring as of</div>
+        <AnimatePresence mode="wait">
+          <motion.div key={ph.date} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }} className="font-display text-[36px] leading-none text-ink">
+            {ph.date}
+          </motion.div>
+        </AnimatePresence>
+        <div className="relative mt-5 h-6">
+          <div className="absolute inset-x-0 top-2.5 h-1 rounded-full bg-panel-2" />
+          <motion.div className="absolute top-2.5 left-0 h-1 rounded-full bg-accent/70" animate={{ width: `${ph.pct}%` }} transition={{ duration: 0.9, ease }} />
+          {[8, 50, 72].map((p, k) => (
+            <span key={p} className={cn("absolute top-1 h-4 w-[3px] -translate-x-1/2 rounded-full", k === 0 ? "bg-accent" : "bg-bad")} style={{ left: `${p}%` }} />
+          ))}
+          <motion.span className="absolute top-0 size-5 -translate-x-1/2 rounded-full border-2 border-accent bg-panel" animate={{ left: `${ph.pct}%` }} transition={{ duration: 0.9, ease }} />
+        </div>
+        <div className="mt-1 flex justify-between font-mono text-[10px] text-muted">
+          <span>Jan</span>
+          <span>today</span>
+        </div>
+      </div>
+      <div className="rounded-2xl border border-line bg-panel-2 p-4">
+        <div className="font-mono text-[10px] tracking-[0.12em] text-muted uppercase">What Kitestring believed about refunds</div>
+        <div className="mt-2 min-h-[52px] space-y-1">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {ph.belief.map((b) => (
+              <motion.div key={b} layout initial={{ opacity: 0, y: 8, filter: "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, x: -10, filter: "blur(4px)" }} transition={{ duration: 0.4 }} className="text-[14px] text-ink">
+                {b}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1">
+          {["Refund Policy", "Support Playbook", "Help Center"].map((d, k) => (
+            <span key={d} className={cn("rounded-full border px-2 py-0.5 text-[11px] transition-colors duration-500", k < ph.stale ? "border-bad/40 bg-bad-soft text-bad" : "border-line text-muted")}>
+              {k < ph.stale ? "⚠ stale · " : ""}
+              {d}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Features() {
   return (
     <section id="features" className="mx-auto max-w-6xl px-5 py-24">
@@ -524,6 +584,15 @@ export function Features() {
         <Reveal delay={0.06}>
           <Tile title="Who actually knows" body="Role-weighted, recency-decayed expertise. Asking counts less than answering." href={ask("Who should I talk to about ledger-db?")}>
             <ExpertBars />
+          </Tile>
+        </Reveal>
+        <Reveal className="md:col-span-3">
+          <Tile
+            title="Time machine"
+            body="Decisions are never deleted, only superseded with a date. So Gary can rebuild the company as it was on any day: what was true, who had decided it, and which docs had already gone stale. Ask “what was our refund policy on July 1?” or drag the timeline and watch the graph rewrite itself."
+            href="/app?tab=time"
+          >
+            <TimeMachineMini />
           </Tile>
         </Reveal>
         <Reveal>
@@ -552,7 +621,7 @@ export function Features() {
           </Tile>
         </Reveal>
         <Reveal delay={0.12}>
-          <Tile title="Speaks MCP" body="The same 11 graph tools as an MCP server, for Claude Desktop, Claude Code, or any agent.">
+          <Tile title="Speaks MCP" body="The same 12 graph tools as an MCP server, for Claude Desktop, Claude Code, or any agent.">
             <pre className="h-full overflow-hidden rounded-2xl bg-panel-2 p-3 font-mono text-[11px] leading-[1.6] text-ink-2">
               {`{
   "mcpServers": {

@@ -25,7 +25,7 @@ export interface Turn {
 }
 
 const SYSTEM = (today: string, memory: string) => `You are Gary, the company brain of Kitestring (a 21-person B2B billing SaaS). You answer questions about how the company works using ONLY your tools, which query a FalkorDB knowledge graph built from Slack, Jira, Notion, meeting notes and GitHub.
-Tool choice: decision_lineage for "what is our X / why / when / what was decided"; who_knows for "who knows / who owns / who should I ask"; profile for "what/who is X"; connect for "how is A related to B"; risk_radar for risks, bus factor, what could go wrong; catch_up for "what did I miss / what changed since"; real_teams for how people really collaborate; search only as a last resort.
+Tool choice: decision_lineage for "what is our X / why / when / what was decided"; who_knows for "who knows / who owns / who should I ask"; profile for "what/who is X"; connect for "how is A related to B"; risk_radar for risks, bus factor, what could go wrong; catch_up for "what did I miss / what changed since"; as_of for "what was X on <past date> / back in <month>" (convert the date to YYYY-MM-DD); real_teams for how people really collaborate; search only as a last resort.
 Rules:
 - Call a tool before answering any factual question. You may call several.
 - Cite record keys from tool results (evidence, decided_in, key fields such as [github:ledger-158] or [decision:billing-0812c-1]) ONLY in square brackets right after each claim. Never cite tool names or person/team/system keys, e.g. [slack:billing-0812c] [decision:billing-0812c-1]. Never invent keys, people, dates or numbers.
@@ -202,6 +202,12 @@ function route(q: string, subjects: string[] = []): [string, Record<string, unkn
   const subject = q.replace(/^(who|what|why|when|how|where)\b.*?\b(about|on|for|is|are|of)\s+/i, "").replace(/[?.!]+$/, "");
   if (/risk|bus factor|single point|what could go wrong/.test(s)) return ["risk_radar", {}];
   if (/what did i miss|catch me up|what changed|while i was (away|out)/.test(s)) return ["catch_up", { days: 30 }];
+  const when = q.match(/\b(?:on|in|as of|back in)\s+((?:\d{4}-\d{2}-\d{2})|(?:[A-Z][a-z]+ \d{1,2}(?:,? \d{4})?)|(?:\d{1,2} [A-Z][a-z]+(?: \d{4})?))/);
+  if (when && subjects.length) {
+    const raw = /\d{4}/.test(when[1]) ? when[1] : `${when[1]} 2026`;
+    const d = new Date(raw);
+    if (!Number.isNaN(d.getTime())) return ["as_of", { subject: subjects[0], date: d.toISOString().slice(0, 10) }];
+  }
   if (/actually work|real team|collaborat/.test(s)) return ["real_teams", {}];
   if (/who (knows|owns|should|can|to ask)|expert/.test(s)) return ["who_knows", { subject }];
   if (/why|decid|policy|when|what('s| is) our|window|date/.test(s)) return ["decision_lineage", { subject }];
@@ -247,6 +253,10 @@ export function composeFromRows(results: { name: string; result: ToolResult }[])
     } else if (name === "fix_stale_docs" && d.tickets) {
       out.push(`Opened tickets to bring the stale **${d.subject.name}** docs in line with the current decision:`);
       for (const t of d.tickets) out.push(`- ${t.already_open ? "Already open" : "Created"} [${t.key}] for "${t.title}" [${t.doc}] → ${t.assigned_to}`);
+    } else if (name === "as_of" && d.in_force_then) {
+      out.push(`On **${d.as_of}**, for ${d.subject.name}:`);
+      for (const x of d.in_force_then) out.push(`- ${x.statement} (decided ${x.decided}) [${x.key}]${x.later_replaced_by ? `. Later replaced on ${x.later_replaced_by.on}: ${x.later_replaced_by.statement} [${x.later_replaced_by.key}]` : ""}`);
+      for (const doc of d.already_stale_docs_then) out.push(`- ⚠️ Already stale then: "${doc.title}" [${doc.key}]`);
     } else if (name === "catch_up" && d.decisions) {
       out.push(`Since ${d.since} (${d.for}):`);
       for (const x of d.decisions.slice(0, 6)) out.push(`- ${x.date}: ${x.statement}${x.replaced.length ? " (replaced an earlier decision)" : ""} [${x.key}]`);

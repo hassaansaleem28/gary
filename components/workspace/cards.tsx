@@ -26,8 +26,56 @@ const Key = ({ k, onCite }: { k?: string | null; onCite: (k: string) => void }) 
     </button>
   ) : null;
 
-export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: any; onCite: (k: string) => void; onAsk: (q: string, opts?: { compare?: boolean }) => void }) {
+export function ToolCards({
+  name,
+  data,
+  onCite,
+  onAsk,
+  onTimeTravel,
+}: {
+  name: string;
+  data: any;
+  onCite: (k: string) => void;
+  onAsk: (q: string, opts?: { compare?: boolean }) => void;
+  onTimeTravel?: (date: string) => void;
+}) {
   if (!data) return null;
+  if (name === "as_of" && data.in_force_then) {
+    return (
+      <Box title={<>As of {data.as_of} · {data.subject?.name}</>}>
+        <div className="space-y-2.5">
+          {data.in_force_then.map((d: any) => (
+            <div key={d.key} className="border-l-2 border-accent/70 pl-3 text-[13px]">
+              <div className="text-ink">{d.statement}</div>
+              <div className="mt-0.5 text-[11.5px] text-muted">
+                in force since {d.decided}
+                {d.decided_by?.length ? ` · ${d.decided_by.join(", ")}` : ""} · <Key k={d.decided_in} onCite={onCite} />
+              </div>
+              {d.later_replaced_by && (
+                <div className="mt-1 text-[11.5px] text-accent">
+                  ↳ replaced on {d.later_replaced_by.on}: {d.later_replaced_by.statement}
+                </div>
+              )}
+            </div>
+          ))}
+          {data.already_stale_docs_then?.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              {data.already_stale_docs_then.map((d: any) => (
+                <span key={d.key} className="rounded-full border border-bad/40 bg-bad-soft px-2 py-0.5 text-[11px] text-bad">
+                  ⚠ already stale then · {d.title}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        {onTimeTravel && (
+          <button onClick={() => onTimeTravel(data.as_of)} className="mt-3 rounded-full bg-ink px-3.5 py-1.5 text-[12px] font-semibold text-bg">
+            Rewind the whole graph to {data.as_of} →
+          </button>
+        )}
+      </Box>
+    );
+  }
   if (name === "decision_lineage" && data.current) {
     return (
       <>

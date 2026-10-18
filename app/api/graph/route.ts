@@ -8,9 +8,9 @@ const LABEL = `[l IN labels(n) WHERE NOT l IN ['Node','Entity','Source']][0]`;
 
 export async function GET() {
   const tx = new Tracer();
-  const nodes = await tx.ro<{ id: string; name: string; label: string; status: string | null; living: boolean | null; origin: string | null; at: number | null }>(
+  const nodes = await tx.ro<{ id: string; name: string; label: string; status: string | null; living: boolean | null; origin: string | null; at: number | null; supersededAt: number | null; joined: number | null }>(
     "viz.nodes",
-    `MATCH (n:Node) WHERE NOT n:Company RETURN n.key AS id, n.name AS name, ${LABEL} AS label, n.status AS status, n.living AS living, n.origin AS origin, n.at AS at`,
+    `MATCH (n:Node) WHERE NOT n:Company RETURN n.key AS id, n.name AS name, ${LABEL} AS label, n.status AS status, n.living AS living, n.origin AS origin, n.at AS at, n.superseded_at AS supersededAt, n.joined AS joined`,
   );
   const links = await tx.ro<{ source: string; target: string; type: string }>(
     "viz.links",

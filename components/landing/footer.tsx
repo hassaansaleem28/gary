@@ -18,18 +18,7 @@ const COLS: { title: string; links: { label: string; href: string; external?: bo
     title: "Project",
     links: [
       { label: "Source code", href: REPO, external: true },
-      { label: "Demo video", href: `${REPO}/blob/main/docs/demo.mp4`, external: true },
-      { label: "Blog post", href: `${REPO}/blob/main/docs/blog.md`, external: true },
-      { label: "Graph model & Cypher", href: `${REPO}#graph-data-model`, external: true },
-    ],
-  },
-  {
-    title: "Built with",
-    links: [
-      { label: "FalkorDB", href: "https://www.falkordb.com", external: true },
-      { label: "Groq", href: "https://groq.com", external: true },
-      { label: "Model Context Protocol", href: "https://modelcontextprotocol.io", external: true },
-      { label: "Graph Hacks 2026", href: "https://www.wemakedevs.org/hackathons/falkordb", external: true },
+      { label: "Demo video", href: "/#demo" },
     ],
   },
 ];
@@ -37,7 +26,7 @@ const COLS: { title: string; links: { label: string; href: string; external?: bo
 export function Footer() {
   return (
     <footer className="relative mt-24 border-t border-line">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.6fr_repeat(2,1fr)]">
         <div>
           <div className="flex items-center gap-2">
             <GaryFace size={38} />
@@ -72,8 +61,8 @@ export function Footer() {
       </div>
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-2 px-5 py-6 text-[12.5px] text-muted sm:flex-row sm:items-center">
-          <span>© 2026 Gary · Built for Graph Hacks (WeMakeDevs × FalkorDB), Track 3: Company Brain</span>
-          <span className="font-mono">FalkorDB · Cypher · Next.js · Groq · MCP</span>
+          <span>© 2026 Gary</span>
+          <span>Built for the Graph Hacks hackathon by Hassaan ❤️</span>
         </div>
       </div>
       <div aria-hidden className="pointer-events-none overflow-hidden">

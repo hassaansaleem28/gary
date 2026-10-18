@@ -17,6 +17,7 @@ const SHAPES: Record<string, z.ZodRawShape> = {
   risk_radar: {},
   real_teams: {},
   search: { query: z.string() },
+  as_of: { ...subject, date: z.string().describe("YYYY-MM-DD") },
   catch_up: { since: z.string().optional(), days: z.number().optional(), person: z.string().optional() },
   open_ticket: {
     title: z.string(),

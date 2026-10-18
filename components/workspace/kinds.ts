@@ -24,6 +24,7 @@ export const TOOL_LABEL: Record<string, string> = {
   risk_radar: "Scanning for knowledge risks",
   real_teams: "Detecting real teams",
   catch_up: "Catching up",
+  as_of: "Rewinding the graph for",
   search: "Searching records for",
   fix_stale_docs: "Opening tickets for stale docs about",
   open_ticket: "Opening a ticket",

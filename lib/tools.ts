@@ -1,5 +1,6 @@
 import type { ChatCompletionTool } from "openai/resources/chat/completions";
 import { catchUp } from "./catchup";
+import { asOf } from "./timetravel";
 import type { Tracer } from "./db";
 
 // Gary's tool catalogue: fixed, parameterised Cypher. The model chooses a tool and its arguments;
@@ -539,6 +540,18 @@ export const TOOLS: ChatCompletionTool[] = [
   {
     type: "function",
     function: {
+      name: "as_of",
+      description: "Time travel: which decisions about a subject were in force on a past date, who made them, what later replaced them, and which docs were already stale then. Use for 'what was our X on <date>', 'back in July', 'before the change'.",
+      parameters: {
+        type: "object",
+        properties: { ...subjectParam, date: { type: "string", description: "The date to look at, YYYY-MM-DD" } },
+        required: ["subject", "date"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "catch_up",
       description: "What changed recently: decisions made or reversed since a date, open tickets, people going away. Optionally scoped to one person's world. Use for 'what did I miss', 'what changed since', 'catch me up'.",
       parameters: {
@@ -611,6 +624,8 @@ export async function runTool(tx: Tracer, name: string, args: Record<string, unk
       return realTeams(tx);
     case "search":
       return search(tx, args as { query: string });
+    case "as_of":
+      return asOf(tx, args as { subject: string; date: string }, resolve);
     case "catch_up":
       return catchUp(tx, args as { since?: string; days?: number; person?: string }, resolve);
     case "open_ticket":

@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ArrowUp, MessageSquare, Network, Radio, RotateCcw, Sparkles, X } from "lucide-react";
+import { ArrowUp, History, MessageSquare, Network, Radio, RotateCcw, Sparkles, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -14,6 +14,7 @@ import { GraphView, type GLink, type GNode } from "@/components/workspace/graph-
 import { KIND, fmtDate } from "@/components/workspace/kinds";
 import { LiveFeed } from "@/components/workspace/live-feed";
 import { Markdown, type Cite } from "@/components/workspace/markdown";
+import { TimeMachine } from "@/components/workspace/time-machine";
 import { cn } from "@/lib/utils";
 
 interface Step {
@@ -42,7 +43,7 @@ const SUGGESTIONS: { area: string; q: string }[] = [
   { area: "Current rules", q: "Are Friday deploys allowed?" },
   { area: "Risk", q: "What are our biggest knowledge risks right now?" },
   { area: "Catch up", q: "I'm Priya, back from 3 weeks off. What did I miss?" },
-  { area: "Multi-hop", q: "How is Kai Johnson connected to the refund policy?" },
+  { area: "Time travel", q: "What was our refund policy on July 1?" },
   { area: "Honesty", q: "Who owns the mobile app?" },
 ];
 
@@ -72,8 +73,10 @@ function Workspace() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [highlight, setHighlight] = useState<string[]>([]);
-  const [tab, setTab] = useState<"graph" | "live" | "how">(params.get("tab") === "live" ? "live" : "graph");
-  const [pane, setPane] = useState<"chat" | "panel">(params.get("tab") === "live" ? "panel" : "chat");
+  const initialTab = (["live", "time", "how"] as const).find((x) => x === params.get("tab")) ?? "graph";
+  const [tab, setTab] = useState<"graph" | "live" | "time" | "how">(initialTab);
+  const [pane, setPane] = useState<"chat" | "panel">(initialTab === "graph" ? "chat" : "panel");
+  const [tmStart, setTmStart] = useState<number | null>(() => (params.get("t") ? Date.parse(params.get("t")!) || null : null));
   const [compare, setCompare] = useState(true);
   const [drawer, setDrawer] = useState<any | null>(null);
   const [session] = useState(() => Math.random().toString(36).slice(2, 10));
@@ -243,7 +246,8 @@ function Workspace() {
           [
             ["chat", "graph", "Chat", MessageSquare],
             ["panel", "graph", "Graph", Network],
-            ["panel", "live", "Live feed", Radio],
+            ["panel", "time", "Time", History],
+            ["panel", "live", "Live", Radio],
           ] as const
         ).map(([p, t, label, Icon]) => {
           const on = pane === p && (p === "chat" || tab === t);
@@ -277,7 +281,16 @@ function Workspace() {
                   </motion.div>
                 ) : (
                   <motion.div key={m.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
-                    <GaryMessage m={m} onCite={openCite} onAsk={ask} />
+                    <GaryMessage
+                      m={m}
+                      onCite={openCite}
+                      onAsk={ask}
+                      onTimeTravel={(d) => {
+                        setTmStart(Date.parse(d) + 43_200_000);
+                        setTab("time");
+                        setPane("panel");
+                      }}
+                    />
                   </motion.div>
                 ),
               )}
@@ -319,6 +332,7 @@ function Workspace() {
             {(
               [
                 ["graph", "Company graph"],
+                ["time", "Time machine"],
                 ["live", "Live feed"],
                 ["how", "How it works"],
               ] as const
@@ -336,6 +350,7 @@ function Workspace() {
           </div>
           <div className="relative min-h-[60vh] flex-1 lg:min-h-0">
             {tab === "graph" && <GraphView data={graph} highlight={highlight} staleDocs={stale} onNodeClick={(n) => openCite(n.id)} />}
+            {tab === "time" && <TimeMachine key={tmStart ?? "auto"} graph={graph} initial={tmStart} onNodeClick={(n) => openCite(n.id)} />}
             {tab === "live" && <LiveFeed people={people} onIngested={() => loadGraph()} />}
             {tab === "how" && <HowItWorks />}
           </div>
@@ -416,7 +431,7 @@ function EmptyState({ onAsk }: { onAsk: (q: string) => void }) {
   );
 }
 
-function GaryMessage({ m, onCite, onAsk }: { m: Msg; onCite: (k: string) => void; onAsk: (q: string, o?: { compare?: boolean }) => void }) {
+function GaryMessage({ m, onCite, onAsk, onTimeTravel }: { m: Msg; onCite: (k: string) => void; onAsk: (q: string, o?: { compare?: boolean }) => void; onTimeTravel: (date: string) => void }) {
   const state = faceFor(m, !!m.pending);
   return (
     <div>
@@ -459,7 +474,7 @@ function GaryMessage({ m, onCite, onAsk }: { m: Msg; onCite: (k: string) => void
           <Markdown text={m.text} cites={m.answer?.citations ?? []} onCite={onCite} />
         </div>
       )}
-      {!m.pending && m.steps.map((s) => <ToolCards key={s.id} name={s.name} data={s.data} onCite={onCite} onAsk={onAsk} />)}
+      {!m.pending && m.steps.map((s) => <ToolCards key={s.id} name={s.name} data={s.data} onCite={onCite} onAsk={onAsk} onTimeTravel={onTimeTravel} />)}
 
       {m.answer?.citations?.length ? (
         <div className="mt-3 flex flex-wrap items-center gap-1">
@@ -504,7 +519,7 @@ function HowItWorks() {
           <code>ASSERTS</code> edges.
         </li>
         <li>
-          <b className="text-ink">Answer by traversal:</b> the agent picks from 11 parameterised Cypher tools. Names are resolved against the graph first, so unknown things get &quot;not in the graph&quot;, never a guess.
+          <b className="text-ink">Answer by traversal:</b> the agent picks from 12 parameterised Cypher tools. Names are resolved against the graph first, so unknown things get &quot;not in the graph&quot;, never a guess.
         </li>
         <li>
           <b className="text-ink">Verify:</b> citations must be keys returned this turn, and people/team names must exist in the graph, or the answer is rebuilt from graph rows.

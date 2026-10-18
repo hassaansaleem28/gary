@@ -15,6 +15,9 @@ export interface GNode {
   status?: string | null;
   living?: boolean | null;
   origin?: string | null;
+  at?: number | null;
+  supersededAt?: number | null;
+  joined?: number | null;
   x?: number;
   y?: number;
 }
@@ -41,7 +44,26 @@ function usePalette() {
   return p;
 }
 
-export function GraphView({ data, highlight, staleDocs, onNodeClick }: { data: { nodes: GNode[]; links: GLink[] }; highlight: string[]; staleDocs: Set<string>; onNodeClick?: (n: GNode) => void }) {
+export function GraphView({
+  data,
+  highlight,
+  staleDocs,
+  onNodeClick,
+  fitOnHighlight = true,
+  dimOthers = true,
+  statusOf,
+}: {
+  data: { nodes: GNode[]; links: GLink[] };
+  highlight: string[];
+  staleDocs: Set<string>;
+  onNodeClick?: (n: GNode) => void;
+  /** zoom to the highlighted nodes when they change (off for the time machine, which highlights every tick) */
+  fitOnHighlight?: boolean;
+  /** dim everything that isn't highlighted (off for the time machine, which only pulses recent changes) */
+  dimOthers?: boolean;
+  /** override a node's status (the time machine shows decisions as they stood on a past date) */
+  statusOf?: (n: GNode) => string | null | undefined;
+}) {
   const wrap = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fg = useRef<any>(undefined);
@@ -64,7 +86,7 @@ export function GraphView({ data, highlight, staleDocs, onNodeClick }: { data: {
   }, [data]);
 
   useEffect(() => {
-    if (!fg.current || !hl.size) return;
+    if (!fg.current || !hl.size || !fitOnHighlight) return;
     const t = setTimeout(() => {
       fg.current?.zoomToFit(700, 80, (n: GNode) => hl.has(n.id));
       setTimeout(() => {
@@ -72,7 +94,7 @@ export function GraphView({ data, highlight, staleDocs, onNodeClick }: { data: {
       }, 750);
     }, 250);
     return () => clearTimeout(t);
-  }, [hl]);
+  }, [hl, fitOnHighlight]);
 
   const neighbors = useMemo(() => {
     if (!hover) return null;
@@ -84,8 +106,9 @@ export function GraphView({ data, highlight, staleDocs, onNodeClick }: { data: {
     return s;
   }, [hover, data.links]);
 
-  const active = (id: string) => (neighbors ? neighbors.has(id) : hl.size ? hl.has(id) : true);
-  const lit = (l: GLink) => active(idOf(l.source)) && active(idOf(l.target)) && (hl.size > 0 || !!neighbors);
+  const active = (id: string) => (neighbors ? neighbors.has(id) : hl.size && dimOthers ? hl.has(id) : true);
+  const lit = (l: GLink) =>
+    neighbors ? neighbors.has(idOf(l.source)) && neighbors.has(idOf(l.target)) : hl.size > 0 && hl.has(idOf(l.source)) && hl.has(idOf(l.target));
 
   return (
     <div ref={wrap} className="relative h-full w-full overflow-hidden">
@@ -97,7 +120,7 @@ export function GraphView({ data, highlight, staleDocs, onNodeClick }: { data: {
         backgroundColor="rgba(0,0,0,0)"
         cooldownTicks={120}
         onEngineStop={() => {
-          if (!hl.size) fg.current?.zoomToFit(500, 40);
+          if (!hl.size || !fitOnHighlight) fg.current?.zoomToFit(500, 40);
         }}
         nodeId="id"
         nodeRelSize={4}
@@ -116,7 +139,7 @@ export function GraphView({ data, highlight, staleDocs, onNodeClick }: { data: {
           const ent = ENTITY.has(n.label);
           const r = ent ? 5 : n.label === "Decision" ? 4 : 2.6;
           let color = pal[n.label] ?? pal.muted ?? "#888";
-          if (n.label === "Decision" && n.status === "superseded") color = pal.muted;
+          if (n.label === "Decision" && (statusOf ? statusOf(n) : n.status) === "superseded") color = pal.muted;
           if (n.origin === "gary") color = pal.bad;
           ctx.globalAlpha = on ? 1 : 0.14;
           ctx.beginPath();
