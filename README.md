@@ -7,8 +7,8 @@ Gary is a company-brain agent built on **FalkorDB**. It reads a company's Slack,
 > Graph Hacks: Context for AI Agents (WeMakeDevs × FalkorDB), October 2026
 > **Tracks entered: Track 03 Company Brain (primary), Track 01 Agents That Act on Connected Data, Track 02 Agent Memory and Coordination**
 
-- **Live demo:** _see the submission page_ (FalkorDB Cloud + Vercel)
-- **Demo video:** `docs/demo.webm` (2–3 min walkthrough)
+- **Live demo:** https://gary-company-brain.vercel.app (FalkorDB Cloud ap-south-1 + Vercel bom1)
+- **Demo video:** [`docs/demo.mp4`](docs/demo.mp4) (3 min captioned walkthrough, recorded by driving the real app)
 - **Repo:** https://github.com/hassaansaleem28/gary
 
 ![Gary answering a refund question with decision lineage and stale docs](docs/refund.png)
