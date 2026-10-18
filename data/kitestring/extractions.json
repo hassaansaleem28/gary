@@ -1,0 +1,664 @@
+{
+  "slack:platform-0114": {
+    "hash": "3ac4e5050166",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "jira:PLAT-88": {
+    "hash": "28fc213bc35b",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "notion:rfc-007": {
+    "hash": "a7c8077ce100",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Migrate ledger-db from MySQL to Postgres under Project Atlas using dual-write, backfill, and checksum verification",
+          "about": [
+            "system:ledger-db",
+            "project:atlas"
+          ],
+          "made_by": [
+            "arjun"
+          ],
+          "decided_in": "notion:rfc-007",
+          "supersedes": [],
+          "because_of": [
+            "jira:PLAT-88"
+          ]
+        },
+        {
+          "statement": "Cut over ledger-db to Postgres by the end of Q2 2026",
+          "about": [
+            "system:ledger-db",
+            "project:atlas"
+          ],
+          "made_by": [
+            "arjun"
+          ],
+          "decided_in": "notion:rfc-007",
+          "supersedes": [],
+          "because_of": []
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:general-0201": {
+    "hash": "55dbbedaafa4",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "notion:refund-policy-v1": {
+    "hash": "d2e8defe4089",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Customers can request a full refund within 30 days of any charge, no questions asked, and refunds are issued through refund-engine",
+          "about": [
+            "topic:refund-policy"
+          ],
+          "made_by": [
+            "maya",
+            "jordan"
+          ],
+          "decided_in": "notion:refund-policy-v1",
+          "supersedes": [],
+          "because_of": []
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:incidents-0227": {
+    "hash": "3be3968516f5",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "jira:PLAT-102": {
+    "hash": "eb69b20218dd",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "notion:eng-handbook-release": {
+    "hash": "f4fa44ab2b5b",
+    "result": {
+      "decisions": [
+        {
+          "statement": "No production deploys on Fridays; deploy window is Monday to Thursday, 10:00-16:00; all deploys go through deploy-pipeline; rollbacks are manual and require the on-call engineer.",
+          "about": [
+            "topic:release-process"
+          ],
+          "made_by": [
+            "omar"
+          ],
+          "decided_in": "notion:eng-handbook-release",
+          "supersedes": [],
+          "because_of": [
+            "jira:PLAT-102"
+          ]
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "notion:support-playbook-refunds": {
+    "hash": "0d013f1c5db8",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:refund-policy-v1-1"
+      ],
+      "absences": []
+    }
+  },
+  "help:refunds-faq": {
+    "hash": "da04967f8742",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:refund-policy-v1-1"
+      ],
+      "absences": []
+    }
+  },
+  "slack:platform-0414": {
+    "hash": "a89ace46531a",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Project Atlas ledger-db cutover to Postgres moves to Oct 28, 2026 because of the SOC2 audit change freeze (May-Aug).",
+          "about": [
+            "system:ledger-db",
+            "project:atlas"
+          ],
+          "made_by": [
+            "arjun",
+            "omar"
+          ],
+          "decided_in": "slack:platform-0414b",
+          "supersedes": [
+            "decision:rfc-007-2"
+          ],
+          "because_of": [
+            "slack:platform-0414"
+          ]
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "notion:data-retention-v1": {
+    "hash": "2b7b2cdf33fd",
+    "result": {
+      "decisions": [
+        {
+          "statement": "All customer data, including invoices, is deleted 90 days after account cancellation, and the deletion job runs nightly in analytics-warehouse.",
+          "about": [
+            "topic:data-retention"
+          ],
+          "made_by": [
+            "maya"
+          ],
+          "decided_in": "notion:data-retention-v1",
+          "supersedes": [],
+          "because_of": []
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "meeting:usage-pricing-kickoff": {
+    "hash": "9e03eb93a5b2",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Usage-Based Pricing launches GA behind a feature flag",
+          "about": [
+            "project:usage-pricing"
+          ],
+          "made_by": [
+            "sofia"
+          ],
+          "decided_in": "meeting:usage-pricing-kickoff",
+          "supersedes": [],
+          "because_of": []
+        },
+        {
+          "statement": "GA launch date for Usage-Based Pricing is November 15, 2026",
+          "about": [
+            "project:usage-pricing"
+          ],
+          "made_by": [
+            "sofia"
+          ],
+          "decided_in": "meeting:usage-pricing-kickoff",
+          "supersedes": [],
+          "because_of": []
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "notion:on-call-rotation": {
+    "hash": "c75e8519a44f",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "meeting:pricing-council-june": {
+    "hash": "578cd105f6df",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Monthly plans retain a 30-day full refund window.",
+          "about": [
+            "topic:refund-policy"
+          ],
+          "made_by": [
+            "maya"
+          ],
+          "decided_in": "meeting:pricing-council-june",
+          "supersedes": [
+            "decision:refund-policy-v1-1"
+          ],
+          "because_of": []
+        },
+        {
+          "statement": "Annual plans receive prorated refunds instead of full refunds.",
+          "about": [
+            "topic:refund-policy"
+          ],
+          "made_by": [
+            "maya"
+          ],
+          "decided_in": "meeting:pricing-council-june",
+          "supersedes": [
+            "decision:refund-policy-v1-1"
+          ],
+          "because_of": []
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:finance-0707": {
+    "hash": "162cb11d052b",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Invoices and ledger records are retained for 7 years; all other data deleted 90 days after cancellation.",
+          "about": [
+            "topic:data-retention"
+          ],
+          "made_by": [
+            "maya"
+          ],
+          "decided_in": "slack:finance-0707b",
+          "supersedes": [
+            "decision:data-retention-v1-1"
+          ],
+          "because_of": [
+            "slack:finance-0707"
+          ]
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "jira:DATA-41": {
+    "hash": "775ad10d99f0",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:finance-0707b-1"
+      ],
+      "absences": []
+    }
+  },
+  "jira:BILL-212": {
+    "hash": "dc0944062e04",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "jira:PLAT-130": {
+    "hash": "5fd3a5be3af4",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:platform-0805": {
+    "hash": "5921339fc425",
+    "result": {
+      "decisions": [
+        {
+          "statement": "The public API rate limit for Pro customers is set to 250 requests per minute.",
+          "about": [
+            "topic:api-rate-limits"
+          ],
+          "made_by": [
+            "arjun"
+          ],
+          "decided_in": "slack:platform-0805c",
+          "supersedes": [],
+          "because_of": [
+            "slack:platform-0805",
+            "slack:platform-0805b"
+          ]
+        },
+        {
+          "statement": "The public API rate limit for Enterprise customers is set to 1000 requests per minute.",
+          "about": [
+            "topic:api-rate-limits"
+          ],
+          "made_by": [
+            "arjun"
+          ],
+          "decided_in": "slack:platform-0805c",
+          "supersedes": [],
+          "because_of": [
+            "slack:platform-0805",
+            "slack:platform-0805b"
+          ]
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:billing-0812": {
+    "hash": "19457c33aa79",
+    "result": {
+      "decisions": [
+        {
+          "statement": "The refund window for monthly plans is 14 days, effective September 1, 2026.",
+          "about": [
+            "topic:refund-policy"
+          ],
+          "made_by": [
+            "maya"
+          ],
+          "decided_in": "slack:billing-0812c",
+          "supersedes": [
+            "decision:pricing-council-june-1"
+          ],
+          "because_of": [
+            "BILL-212"
+          ]
+        }
+      ],
+      "asserts": [
+        "decision:pricing-council-june-2"
+      ],
+      "absences": []
+    }
+  },
+  "jira:BILL-219": {
+    "hash": "e64b9a71c605",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:billing-0812c-1",
+        "decision:pricing-council-june-2"
+      ],
+      "absences": []
+    }
+  },
+  "jira:PLAT-141": {
+    "hash": "7f639d0640ac",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:rfc-007-1"
+      ],
+      "absences": []
+    }
+  },
+  "github:auth-210": {
+    "hash": "fbcf851108b3",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "github:billing-311": {
+    "hash": "f3414fa1619c",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:billing-0812c-1"
+      ],
+      "absences": []
+    }
+  },
+  "jira:BILL-240": {
+    "hash": "e8da838644bc",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "github:deploy-77": {
+    "hash": "0c05148e6a07",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "jira:DATA-55": {
+    "hash": "6aa6979256ff",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:engineering-0908": {
+    "hash": "4d63fbede3d1",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Friday deploy freeze is lifted: Friday deploys are allowed for changes behind feature flags; unflagged infra changes remain Monday-Thursday only.",
+          "about": [
+            "topic:release-process"
+          ],
+          "made_by": [
+            "arjun"
+          ],
+          "decided_in": "slack:engineering-0908",
+          "supersedes": [
+            "decision:eng-handbook-release-1"
+          ],
+          "because_of": [
+            "github:deploy-77"
+          ]
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "github:ledger-140": {
+    "hash": "6b87635299bb",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:rfc-007-1"
+      ],
+      "absences": []
+    }
+  },
+  "github:auth-224": {
+    "hash": "84b68ced44c3",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:growth-0918": {
+    "hash": "b5d56a29997a",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "jira:DATA-60": {
+    "hash": "20c623f0399b",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "github:billing-330": {
+    "hash": "055856a733bf",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:usage-pricing-kickoff-1"
+      ],
+      "absences": []
+    }
+  },
+  "github:churn-41": {
+    "hash": "be4c88af2748",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:usage-pricing-0925": {
+    "hash": "3b122d5ef3d4",
+    "result": {
+      "decisions": [
+        {
+          "statement": "GA launch date for Usage-Based Pricing is December 1, 2026",
+          "about": [
+            "project:usage-pricing"
+          ],
+          "made_by": [
+            "sofia"
+          ],
+          "decided_in": "slack:usage-pricing-0925",
+          "supersedes": [
+            "decision:usage-pricing-kickoff-2"
+          ],
+          "because_of": [
+            "slack:platform-0414b"
+          ]
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "jira:PLAT-149": {
+    "hash": "4cbb4bf29fb9",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "github:ledger-152": {
+    "hash": "26aee2d884e9",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:rfc-007-1",
+        "decision:platform-0414b-1"
+      ],
+      "absences": []
+    }
+  },
+  "github:auth-231": {
+    "hash": "7e4edf27ccf8",
+    "result": {
+      "decisions": [
+        {
+          "statement": "When a workspace enables SSO enforcement, password login is disabled for its members.",
+          "about": [
+            "system:auth-service"
+          ],
+          "made_by": [
+            "ravi"
+          ],
+          "decided_in": "github:auth-231",
+          "supersedes": [],
+          "because_of": [
+            "PLAT-130"
+          ]
+        }
+      ],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:general-1002": {
+    "hash": "cc529caf5269",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": [
+        {
+          "handle": "tomasz",
+          "from": "2026-11-02",
+          "to": "2027-02-02"
+        }
+      ]
+    }
+  },
+  "notion:atlas-runbook": {
+    "hash": "b56fb96c9886",
+    "result": {
+      "decisions": [],
+      "asserts": [
+        "decision:platform-0414b-1"
+      ],
+      "absences": []
+    }
+  },
+  "slack:support-1006": {
+    "hash": "e683459a96c8",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "github:ledger-158": {
+    "hash": "4c04df39760c",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "slack:platform-1013": {
+    "hash": "777308c96263",
+    "result": {
+      "decisions": [],
+      "asserts": [],
+      "absences": []
+    }
+  },
+  "meeting:atlas-sync-1014": {
+    "hash": "fd032ed789be",
+    "result": {
+      "decisions": [
+        {
+          "statement": "Dual-write will be kept enabled for two weeks after the ledger-db cutover on Oct 28, 2026.",
+          "about": [
+            "system:ledger-db",
+            "project:atlas"
+          ],
+          "made_by": [],
+          "decided_in": "meeting:atlas-sync-1014",
+          "supersedes": [],
+          "because_of": []
+        }
+      ],
+      "asserts": [
+        "decision:platform-0414b-1"
+      ],
+      "absences": []
+    }
+  }
+}

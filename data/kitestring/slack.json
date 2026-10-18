@@ -1,0 +1,47 @@
+[
+  { "id": "slack:platform-0114", "channel": "platform", "author": "hana", "at": "2026-01-09T08:12:00Z", "text": "Month-end invoicing run is stuck again. ledger-db is throwing deadlocks, invoices are ~6h behind. Opened PLAT-88, @tomasz can you take a look?" },
+  { "id": "slack:platform-0114b", "channel": "platform", "author": "tomasz", "at": "2026-01-09T08:40:00Z", "thread": "slack:platform-0114", "text": "On it. This is the MySQL row-lock issue again on the ledger_entries table. Long term we need real serializable transactions — I'll write an RFC." },
+
+  { "id": "slack:general-0201", "channel": "general", "author": "grace", "at": "2026-02-01T10:00:00Z", "text": "Reminder: team offsite is March 12 in Lisbon. Please book flights by Feb 15 🙏" },
+
+  { "id": "slack:incidents-0227", "channel": "incidents", "author": "hana", "at": "2026-02-27T17:05:00Z", "text": "SEV2: Friday afternoon deploy of payments-gateway broke Stripe webhook signature checks. Webhooks failing for ~3h. Rolled back manually. PLAT-102." },
+  { "id": "slack:incidents-0227b", "channel": "incidents", "author": "omar", "at": "2026-02-27T19:30:00Z", "thread": "slack:incidents-0227", "text": "Second Friday incident this quarter. I'm going to write down a deploy window policy in the eng handbook." },
+
+  { "id": "slack:platform-0414", "channel": "platform", "author": "omar", "at": "2026-04-14T09:20:00Z", "text": "SOC2 audit observation window is May through August, so we're freezing risky infra changes. That means Project Atlas cutover can't happen end of Q2 — I propose moving the ledger-db cutover to Oct 28." },
+  { "id": "slack:platform-0414b", "channel": "platform", "author": "arjun", "at": "2026-04-14T10:02:00Z", "thread": "slack:platform-0414", "text": "Agreed. Atlas cutover is now Oct 28. @tomasz keep dual-write work going in the meantime." },
+  { "id": "slack:platform-0414c", "channel": "platform", "author": "tomasz", "at": "2026-04-14T10:15:00Z", "thread": "slack:platform-0414", "text": "👍 Oct 28. I'll start dual-write after the audit kicks off." },
+
+  { "id": "slack:finance-0707", "channel": "finance", "author": "elena", "at": "2026-07-07T13:00:00Z", "text": "Our auditors flagged that invoices and ledger records must be kept for 7 years for tax purposes. Our data-retention policy deletes everything 90 days after cancellation. Proposal: invoices + ledger records are exempt from the 90-day deletion and are retained for 7 years." },
+  { "id": "slack:finance-0707b", "channel": "finance", "author": "maya", "at": "2026-07-07T13:45:00Z", "thread": "slack:finance-0707", "text": "Approved. Invoices and ledger records: 7-year retention. Everything else stays at 90 days. @nina please update the deletion job." },
+  { "id": "slack:finance-0707c", "channel": "finance", "author": "nina", "at": "2026-07-07T14:10:00Z", "thread": "slack:finance-0707", "text": "Will do — Sam will take it as DATA-41." },
+
+  { "id": "slack:platform-0805", "channel": "platform", "author": "ravi", "at": "2026-08-05T11:00:00Z", "text": "Customers on Pro keep hitting the public API rate limit (100 req/min). Proposal: raise it to 300 req/min for Pro." },
+  { "id": "slack:platform-0805b", "channel": "platform", "author": "omar", "at": "2026-08-05T11:20:00Z", "thread": "slack:platform-0805", "text": "300 is a lot for our current gateway. Let's do 250 req/min for Pro and 1000 req/min for Enterprise." },
+  { "id": "slack:platform-0805c", "channel": "platform", "author": "arjun", "at": "2026-08-05T11:31:00Z", "thread": "slack:platform-0805", "text": "Ship it: 250 Pro / 1000 Enterprise." },
+
+  { "id": "slack:billing-0812", "channel": "billing", "author": "priya", "at": "2026-08-12T09:00:00Z", "text": "Given BILL-212 (refund abuse — 41 cases in July, people charging and refunding at day 25-29), I propose we cut the refund window from 30 days to 14 days for monthly plans. Annual plans keep prorated refunds." },
+  { "id": "slack:billing-0812b", "channel": "billing", "author": "elena", "at": "2026-08-12T09:22:00Z", "thread": "slack:billing-0812", "text": "Finance supports this. The abuse cost us roughly $18k in July alone." },
+  { "id": "slack:billing-0812c", "channel": "billing", "author": "maya", "at": "2026-08-12T10:05:00Z", "thread": "slack:billing-0812", "text": "Approved. Refund window for monthly plans is 14 days, effective Sept 1. Annual stays prorated. @priya please make sure support docs and the help center get updated." },
+  { "id": "slack:billing-0812d", "channel": "billing", "author": "priya", "at": "2026-08-12T10:12:00Z", "thread": "slack:billing-0812", "text": "Will do. Diego will implement it in refund-engine (BILL-219). @jordan can your team update the support playbook and the help center refund article?" },
+  { "id": "slack:billing-0812e", "channel": "billing", "author": "jordan", "at": "2026-08-12T10:30:00Z", "thread": "slack:billing-0812", "text": "👍 on it" },
+
+  { "id": "slack:engineering-0908", "channel": "engineering", "author": "arjun", "at": "2026-09-08T16:00:00Z", "text": "Now that every product change ships behind feature-flags and Hana's 1-click rollback is live in deploy-pipeline, I'm lifting the Friday deploy freeze. Fridays are fine for flagged changes. Unflagged infra changes still only Mon-Thu." },
+  { "id": "slack:engineering-0908b", "channel": "engineering", "author": "omar", "at": "2026-09-08T16:20:00Z", "thread": "slack:engineering-0908", "text": "+1. I'll update the release section of the eng handbook." },
+
+  { "id": "slack:growth-0918", "channel": "growth", "author": "chloe", "at": "2026-09-18T15:00:00Z", "text": "SSO is the #1 blocker on 3 enterprise deals right now (Globex, Initech, Umbrella). What's the ETA on Okta SAML?" },
+  { "id": "slack:growth-0918b", "channel": "growth", "author": "carlos", "at": "2026-09-18T15:12:00Z", "thread": "slack:growth-0918", "text": "Initech asked again today. They need SSO enforcement per workspace, not just login." },
+  { "id": "slack:growth-0918c", "channel": "growth", "author": "ravi", "at": "2026-09-18T15:40:00Z", "thread": "slack:growth-0918", "text": "SAML parsing is merged, enforcement per workspace is my next PR. Realistically mid-October for Okta." },
+
+  { "id": "slack:usage-pricing-0925", "channel": "usage-pricing", "author": "sofia", "at": "2026-09-25T10:00:00Z", "text": "Because the Atlas cutover is Oct 28 and usage pricing needs per-event ledger writes on Postgres, we're moving usage-based pricing GA from Nov 15 to Dec 1 to leave a buffer." },
+  { "id": "slack:usage-pricing-0925b", "channel": "usage-pricing", "author": "priya", "at": "2026-09-25T10:20:00Z", "thread": "slack:usage-pricing-0925", "text": "Makes sense. Billing side (meter consumer) will be ready by Nov 10." },
+  { "id": "slack:usage-pricing-0925c", "channel": "usage-pricing", "author": "chloe", "at": "2026-09-25T10:31:00Z", "thread": "slack:usage-pricing-0925", "text": "I'll update the launch comms and the pricing page date." },
+
+  { "id": "slack:general-1002", "channel": "general", "author": "tomasz", "at": "2026-10-02T09:00:00Z", "text": "Heads up: I'm going on parental leave from Nov 2 for 3 months 🍼 I'll do handovers before I go." },
+  { "id": "slack:general-1002b", "channel": "general", "author": "grace", "at": "2026-10-02T09:05:00Z", "thread": "slack:general-1002", "text": "Congratulations Tomasz!! 🎉" },
+
+  { "id": "slack:support-1006", "channel": "support", "author": "carlos", "at": "2026-10-06T14:00:00Z", "text": "Customer Acme Corp is quoting our help center: full refund within 30 days. But refund-engine rejected their refund at day 20 on a monthly plan. Which one is right??" },
+  { "id": "slack:support-1006b", "channel": "support", "author": "mei", "at": "2026-10-06T14:20:00Z", "thread": "slack:support-1006", "text": "Our support playbook also says 30 days... let me check with someone and get back to you." },
+
+  { "id": "slack:platform-1013", "channel": "platform", "author": "kai", "at": "2026-10-13T09:30:00Z", "text": "Hi all! I'm Kai, just joined Platform 👋 Where's a good place to start understanding ledger-db and Atlas?" },
+  { "id": "slack:platform-1013b", "channel": "platform", "author": "omar", "at": "2026-10-13T09:45:00Z", "thread": "slack:platform-1013", "text": "Welcome Kai! Tomasz is the person for anything ledger-db. Start with RFC-007." }
+]

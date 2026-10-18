@@ -1,0 +1,70 @@
+{
+  "company": { "key": "company:kitestring", "name": "Kitestring", "about": "Fictional 22-person B2B SaaS startup selling a subscription-billing platform. All data is synthetic." },
+  "teams": [
+    { "key": "team:leadership", "name": "Leadership" },
+    { "key": "team:billing", "name": "Billing" },
+    { "key": "team:platform", "name": "Platform" },
+    { "key": "team:growth", "name": "Growth" },
+    { "key": "team:support", "name": "Customer Success" },
+    { "key": "team:data", "name": "Data" },
+    { "key": "team:ops", "name": "Finance & People" }
+  ],
+  "people": [
+    { "key": "person:maya-chen", "name": "Maya Chen", "handle": "maya", "role": "CEO", "team": "team:leadership", "lead": true, "joined": "2023-02-01" },
+    { "key": "person:arjun-mehta", "name": "Arjun Mehta", "handle": "arjun", "role": "CTO", "team": "team:leadership", "joined": "2023-02-01" },
+    { "key": "person:sofia-alvarez", "name": "Sofia Alvarez", "handle": "sofia", "role": "VP Product", "team": "team:leadership", "joined": "2023-06-12" },
+
+    { "key": "person:priya-raman", "name": "Priya Raman", "handle": "priya", "role": "Engineering Manager, Billing", "team": "team:billing", "lead": true, "joined": "2023-05-08" },
+    { "key": "person:diego-santos", "name": "Diego Santos", "handle": "diego", "role": "Senior Engineer", "team": "team:billing", "joined": "2024-01-15" },
+    { "key": "person:lena-fischer", "name": "Lena Fischer", "handle": "lena", "role": "Software Engineer", "team": "team:billing", "joined": "2025-03-03" },
+
+    { "key": "person:omar-haddad", "name": "Omar Haddad", "handle": "omar", "role": "Platform Lead", "team": "team:platform", "lead": true, "joined": "2023-04-17" },
+    { "key": "person:tomasz-novak", "name": "Tomasz Novak", "handle": "tomasz", "role": "Staff Engineer", "team": "team:platform", "joined": "2023-03-20" },
+    { "key": "person:hana-kim", "name": "Hana Kim", "handle": "hana", "role": "Site Reliability Engineer", "team": "team:platform", "joined": "2024-06-10" },
+    { "key": "person:ravi-iyer", "name": "Ravi Iyer", "handle": "ravi", "role": "Software Engineer", "team": "team:platform", "joined": "2024-09-02" },
+    { "key": "person:kai-johnson", "name": "Kai Johnson", "handle": "kai", "role": "Software Engineer", "team": "team:platform", "joined": "2026-10-12" },
+
+    { "key": "person:chloe-martin", "name": "Chloe Martin", "handle": "chloe", "role": "Growth PM", "team": "team:growth", "lead": true, "joined": "2024-02-05" },
+    { "key": "person:ben-okafor", "name": "Ben Okafor", "handle": "ben", "role": "Frontend Engineer", "team": "team:growth", "joined": "2024-04-22" },
+    { "key": "person:aisha-bello", "name": "Aisha Bello", "handle": "aisha", "role": "Product Designer", "team": "team:growth", "joined": "2024-08-19" },
+
+    { "key": "person:jordan-lee", "name": "Jordan Lee", "handle": "jordan", "role": "Head of Customer Success", "team": "team:support", "lead": true, "joined": "2023-07-10" },
+    { "key": "person:mei-tanaka", "name": "Mei Tanaka", "handle": "mei", "role": "Support Specialist", "team": "team:support", "joined": "2024-11-04" },
+    { "key": "person:carlos-ruiz", "name": "Carlos Ruiz", "handle": "carlos", "role": "Solutions Engineer", "team": "team:support", "joined": "2025-01-13" },
+
+    { "key": "person:nina-petrova", "name": "Nina Petrova", "handle": "nina", "role": "Data Lead", "team": "team:data", "lead": true, "joined": "2023-09-18" },
+    { "key": "person:sam-wright", "name": "Sam Wright", "handle": "sam", "role": "Analytics Engineer", "team": "team:data", "joined": "2025-02-24" },
+
+    { "key": "person:elena-rossi", "name": "Elena Rossi", "handle": "elena", "role": "Finance Lead", "team": "team:ops", "lead": true, "joined": "2023-08-01" },
+    { "key": "person:grace-liu", "name": "Grace Liu", "handle": "grace", "role": "People Ops", "team": "team:ops", "joined": "2024-03-11" }
+  ],
+  "systems": [
+    { "key": "system:billing-service", "name": "billing-service", "owner": "team:billing", "about": "Core subscription + invoice API" },
+    { "key": "system:payments-gateway", "name": "payments-gateway", "owner": "team:billing", "about": "Stripe integration, card charges, webhooks" },
+    { "key": "system:refund-engine", "name": "refund-engine", "owner": "team:billing", "about": "Automated refund rules and approvals" },
+    { "key": "system:ledger-db", "name": "ledger-db", "owner": "team:platform", "about": "Double-entry ledger database (MySQL, migrating to Postgres)" },
+    { "key": "system:auth-service", "name": "auth-service", "owner": "team:platform", "about": "Login, sessions, SSO (SAML/OIDC)" },
+    { "key": "system:kafka-events", "name": "kafka-events", "owner": "team:platform", "about": "Event bus for usage events" },
+    { "key": "system:deploy-pipeline", "name": "deploy-pipeline", "owner": "team:platform", "about": "CI/CD and release tooling" },
+    { "key": "system:web-app", "name": "web-app", "owner": "team:growth", "about": "Customer dashboard (Next.js)" },
+    { "key": "system:feature-flags", "name": "feature-flags", "owner": "team:growth", "about": "Flag service for gradual rollouts" },
+    { "key": "system:help-center", "name": "help-center", "owner": "team:support", "about": "Public help articles" },
+    { "key": "system:analytics-warehouse", "name": "analytics-warehouse", "owner": "team:data", "about": "Warehouse + dbt models" },
+    { "key": "system:churn-model", "name": "churn-model", "owner": "team:data", "about": "Churn early-warning score" }
+  ],
+  "projects": [
+    { "key": "project:atlas", "name": "Project Atlas", "aliases": ["atlas"], "about": "Migrate ledger-db from MySQL to Postgres", "lead": "person:tomasz-novak", "teams": ["team:platform", "team:billing"], "uses": ["system:ledger-db", "system:billing-service"], "status": "in progress" },
+    { "key": "project:usage-pricing", "name": "Usage-Based Pricing", "aliases": ["usage pricing", "usage-based billing", "metered billing"], "about": "Launch metered, per-event pricing", "lead": "person:sofia-alvarez", "teams": ["team:billing", "team:growth", "team:data"], "uses": ["system:billing-service", "system:kafka-events", "system:ledger-db"], "status": "in progress" },
+    { "key": "project:refund-revamp", "name": "Refund Revamp", "aliases": ["refund automation"], "about": "Automate refunds and curb refund abuse", "lead": "person:priya-raman", "teams": ["team:billing", "team:support"], "uses": ["system:refund-engine", "system:payments-gateway"], "status": "shipped" },
+    { "key": "project:enterprise-sso", "name": "Enterprise SSO", "aliases": ["sso", "saml"], "about": "SAML/OIDC single sign-on for enterprise plans", "lead": "person:omar-haddad", "teams": ["team:platform", "team:growth"], "uses": ["system:auth-service", "system:web-app"], "status": "in progress" },
+    { "key": "project:churn-early-warning", "name": "Churn Early Warning", "aliases": ["churn alerts"], "about": "Alert CS when accounts look likely to churn", "lead": "person:nina-petrova", "teams": ["team:data", "team:support"], "uses": ["system:churn-model", "system:analytics-warehouse"], "status": "in progress" }
+  ],
+  "topics": [
+    { "key": "topic:refund-policy", "name": "Refund policy", "aliases": ["refund window", "refunds", "refund"], "owner": "team:billing" },
+    { "key": "topic:release-process", "name": "Release process", "aliases": ["deploys", "deploy freeze", "friday deploys", "releases"], "owner": "team:platform" },
+    { "key": "topic:data-retention", "name": "Data retention", "aliases": ["retention", "data deletion", "invoice retention"], "owner": "team:ops" },
+    { "key": "topic:on-call", "name": "On-call", "aliases": ["oncall", "pager", "incident response"], "owner": "team:platform" },
+    { "key": "topic:pricing", "name": "Pricing", "aliases": ["plans", "price"], "owner": "team:leadership" },
+    { "key": "topic:api-rate-limits", "name": "API rate limits", "aliases": ["rate limit", "rate limits", "throttling"], "owner": "team:platform" }
+  ]
+}
