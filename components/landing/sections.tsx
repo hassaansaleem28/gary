@@ -681,24 +681,39 @@ export function Numbers() {
 
 /* ─────────────────────────── demo video ─────────────────────────── */
 
+// The demo video lives on YouTube (set NEXT_PUBLIC_DEMO_YOUTUBE_ID); until then the section shows the poster.
+const DEMO_YOUTUBE_ID = process.env.NEXT_PUBLIC_DEMO_YOUTUBE_ID ?? "";
+
 export function Demo() {
   const [play, setPlay] = useState(false);
   return (
     <section id="demo" className="mx-auto max-w-6xl px-5 py-24">
-      <SectionTitle eyebrow="See it think" title={<>Watch Gary <span className="italic text-accent">work.</span></>} sub="Recorded by driving the real, deployed app: stale answers, decision lineage, a live policy change, memory going stale, and an honest “I don't know”." />
+      <SectionTitle eyebrow="See it think" title={<>Watch Gary <span className="italic text-accent">work.</span></>} sub="Recorded by driving the real, deployed app: stale answers, decision lineage, a live policy change, memory going stale, the time machine, and an honest “I don't know”." />
       <Reveal className="mt-12">
         <Backlight blur={34} className="rounded-3xl">
           <div className="relative aspect-video overflow-hidden rounded-3xl border border-line bg-panel">
-            {play ? (
-              <video src="/demo.mp4" controls autoPlay playsInline className="h-full w-full" />
+            {play && DEMO_YOUTUBE_ID ? (
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${DEMO_YOUTUBE_ID}?autoplay=1&rel=0&modestbranding=1`}
+                title="Gary demo"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowFullScreen
+                className="h-full w-full"
+              />
             ) : (
-              <button onClick={() => setPlay(true)} className="group relative block h-full w-full">
+              <button onClick={() => DEMO_YOUTUBE_ID && setPlay(true)} className="group relative block h-full w-full" disabled={!DEMO_YOUTUBE_ID}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/poster.png" alt="Gary answering a refund question with decision lineage" className="h-full w-full object-cover opacity-90 transition-opacity group-hover:opacity-100" />
                 <span className="absolute inset-0 grid place-items-center">
-                  <span className="grid size-20 place-items-center rounded-full bg-accent text-accent-ink shadow-[0_20px_60px_-10px_var(--accent)] transition-transform group-hover:scale-110">
-                    <Play size={30} className="translate-x-0.5" fill="currentColor" />
-                  </span>
+                  {DEMO_YOUTUBE_ID ? (
+                    <span className="grid size-20 place-items-center rounded-full bg-accent text-accent-ink shadow-[0_20px_60px_-10px_var(--accent)] transition-transform group-hover:scale-110">
+                      <Play size={30} className="translate-x-0.5" fill="currentColor" />
+                    </span>
+                  ) : (
+                    <Link href="/app" className="rounded-full bg-panel/90 px-5 py-2.5 text-[14px] text-ink shadow-[var(--shadow)] backdrop-blur">
+                      Video coming soon. Try Gary live instead →
+                    </Link>
+                  )}
                 </span>
               </button>
             )}
