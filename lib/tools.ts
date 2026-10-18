@@ -433,6 +433,43 @@ async function openTicket(tx: Tracer, args: { title: string; details: string; su
   });
 }
 
+// One action, driven entirely by the graph: a ticket per stale doc, assigned to its author. Idempotent.
+async function fixStaleDocs(tx: Tracer, { subject }: { subject: string }, session: string): Promise<ToolResult> {
+  const lineage = await decisionLineage(tx, { subject });
+  if (lineage.outcome !== "ok") return lineage;
+  const d = lineage.data as { subject: Resolved; current: { statement: string }[]; stale_docs: { key: string; title: string; still_says?: string; author: string | null }[] };
+  if (!d.stale_docs.length) return { outcome: "empty", data: { subject: d.subject, note: "No stale docs about this subject." }, nodes: [d.subject.key], cites: [] };
+  const current = d.current.map((c) => c.statement).join(" / ");
+  const tickets: { key: string; doc: string; title: string; assigned_to: string; already_open: boolean }[] = [];
+  for (const doc of d.stale_docs) {
+    const [open] = await tx.ro<{ key: string; assignee: string | null }>(
+      "fix.existing_ticket",
+      `MATCH (t:Ticket {origin:'gary', status:'Open'})-[:REFERENCES]->(:Doc {key:$k}) OPTIONAL MATCH (p:Person)-[:ASSIGNED]->(t) RETURN t.key AS key, p.name AS assignee LIMIT 1`,
+      { k: doc.key },
+    );
+    if (open) {
+      tickets.push({ key: open.key, doc: doc.key, title: doc.title, assigned_to: open.assignee ?? "unassigned", already_open: true });
+      continue;
+    }
+    const r = await openTicket(tx, {
+      title: `Update "${doc.title}" to the current decision`,
+      details: `Still says: "${doc.still_says ?? "an outdated decision"}". Current decision: ${current}`,
+      subject: d.subject.key,
+      assignee: doc.author ?? undefined,
+      refs: [doc.key],
+    });
+    const created = r.data as { created: string; assigned_to: string };
+    tickets.push({ key: created.created, doc: doc.key, title: doc.title, assigned_to: created.assigned_to, already_open: false });
+  }
+  void session;
+  return {
+    outcome: "ok",
+    data: { subject: d.subject, current_decision: current, tickets },
+    nodes: [d.subject.key, ...tickets.flatMap((t) => [t.key, t.doc])],
+    cites: [...tickets.map((t) => t.key), ...tickets.map((t) => t.doc)],
+  };
+}
+
 async function remember(tx: Tracer, args: { note: string; subject: string }, session: string): Promise<ToolResult> {
   return withSubject(tx, args.subject, async (s) => {
     const key = `finding:${Date.now()}`;
@@ -543,6 +580,14 @@ export const TOOLS: ChatCompletionTool[] = [
   {
     type: "function",
     function: {
+      name: "fix_stale_docs",
+      description: "ACTION: open a ticket for every stale doc about a subject, assigned to that doc's author (skips docs that already have an open ticket). Use when the user asks to fix or update stale docs.",
+      parameters: { type: "object", properties: subjectParam, required: ["subject"] },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "remember",
       description: "Save a note to long-term memory about a subject. Only when the user asks you to remember something.",
       parameters: { type: "object", properties: { note: { type: "string" }, subject: { type: "string" } }, required: ["note", "subject"] },
@@ -570,6 +615,8 @@ export async function runTool(tx: Tracer, name: string, args: Record<string, unk
       return catchUp(tx, args as { since?: string; days?: number; person?: string }, resolve);
     case "open_ticket":
       return openTicket(tx, args as Parameters<typeof openTicket>[1]);
+    case "fix_stale_docs":
+      return fixStaleDocs(tx, args as { subject: string }, session);
     case "remember":
       return remember(tx, args as { note: string; subject: string }, session);
     default:

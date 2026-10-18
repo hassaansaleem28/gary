@@ -25,9 +25,10 @@ const SHAPES: Record<string, z.ZodRawShape> = {
     assignee: z.string().optional(),
     refs: z.array(z.string()).optional(),
   },
+  fix_stale_docs: subject,
   remember: { note: z.string(), subject: z.string() },
 };
-const WRITES = new Set(["open_ticket", "remember"]);
+const WRITES = new Set(["open_ticket", "remember", "fix_stale_docs"]);
 
 for (const tool of TOOLS) {
   if (tool.type !== "function") continue;

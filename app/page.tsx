@@ -93,7 +93,8 @@ export default function Home() {
   }, []);
 
   const ask = useCallback(
-    async (q: string) => {
+    async (q: string, opts: { compare?: boolean } = {}) => {
+      const withCompare = opts.compare ?? compare;
       if (!q.trim() || busy) return;
       setBusy(true);
       setInput("");
@@ -101,11 +102,11 @@ export default function Home() {
       const history = msgs.filter((m) => !m.pending).map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
       const uid = `u${Date.now()}`;
       const gid = `g${Date.now()}`;
-      setMsgs((m) => [...m, { id: uid, role: "user", text: q, steps: [] }, { id: gid, role: "gary", text: "", steps: [], pending: true, compare: compare ? "loading" : undefined }]);
+      setMsgs((m) => [...m, { id: uid, role: "user", text: q, steps: [] }, { id: gid, role: "gary", text: "", steps: [], pending: true, compare: withCompare ? "loading" : undefined }]);
       const patch = (fn: (m: Msg) => Msg) => setMsgs((ms) => ms.map((m) => (m.id === gid ? fn(m) : m)));
       setHighlight([]);
 
-      if (compare)
+      if (withCompare)
         fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q }) })
           .then((r) => r.json())
           .then((c) => patch((m) => ({ ...m, compare: c })))

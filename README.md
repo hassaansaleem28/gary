@@ -48,7 +48,7 @@ Every one of these is about **relationships, not text**. A vector index cannot k
 ## Demo storyline (try these)
 
 1. **"Can a customer get a full refund after 20 days?"** Plain RAG (shown side by side) retrieves the June meeting notes and says *yes, 30 days*. Gary walks `SUPERSEDES` and answers **no: 14 days since Aug 12, decided by Maya in #billing because of BILL-212 (refund abuse)**. It shows the two older decisions it replaced and flags **3 docs that still say 30 days** (Notion policy, support playbook, help center) with their authors. It also surfaces Carlos's confused #support message.
-2. Click **"Fix it"**: Gary opens tickets assigned to Jordan and Mei. They appear as red nodes in the graph.
+2. Click **"Fix it"**: `fix_stale_docs` opens one ticket per stale doc, assigned to its author (Jordan, Mei). It is idempotent, and the tickets appear as red nodes in the graph.
 3. **"Who should I talk to about ledger-db?"** Tomasz holds about 55% of the hands-on knowledge, **but he is on parental leave from Nov 2**, inside the Atlas rollback window. Omar and Hana are the backups.
 4. **"What are our biggest knowledge risks right now?"** Knowledge concentration per system/project, upcoming absences, betweenness-central knowledge brokers and stale docs.
 5. **"Why is usage-based pricing launching Dec 1?"** Multi-hop: Dec 1 replaced Nov 15 because the Atlas ledger cutover is Oct 28, which moved there because of the SOC2 audit change freeze.
@@ -66,7 +66,7 @@ Every one of these is about **relationships, not text**. A vector index cannot k
  GitHub ┘   LLM decision extraction  ◄─context── │ Doc ─ASSERTS─► Decision  Finding (mem) │
             (active decisions from the graph)    └────────────▲───────────────────────────┘
                                                               │ parameterised Cypher only
- Question ─► memory recall ─► LLM picks tool(s) ─► Tool catalogue (10) ─► rows ─► answer
+ Question ─► memory recall ─► LLM picks tool(s) ─► Tool catalogue (11) ─► rows ─► answer
                                                    + citation validation + graph highlight
 ```
 
@@ -77,9 +77,10 @@ Every one of these is about **relationships, not text**. A vector index cannot k
 - **MCP:** `@modelcontextprotocol/sdk` stdio server in `mcp/server.ts`.
 
 ### Design rules (borrowed from the organisers' "agent that reasons over a graph" guide)
-- **No model-written Cypher.** The model chooses from 10 fixed, parameterised tools.
+- **No model-written Cypher.** The model chooses from 11 fixed, parameterised tools.
 - **Resolve before reasoning.** Names are matched against the graph (exact → alias → full-text with ≥50% word coverage). Unknown means *unknown_subject*, never a guess.
 - **Answers carry their path.** Citations are validated against tool output, and the UI shows every query.
+- **Names are validated too.** Our own demo recording caught the model citing real records while inventing a "Product-Mobile team led by Priya Patel". Every capitalised name pair and hyphenated proper noun in an answer must now exist in the graph or in this turn's tool results. Otherwise the answer is rebuilt from the graph rows, and the UI says which names were rejected. Backups for people going on leave are computed in Cypher, so the model never has to guess one.
 - **Memory is just nodes**, linked to what it is about, with timestamps, so it can go stale with the graph.
 
 ## Graph data model

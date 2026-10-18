@@ -33,7 +33,7 @@ Rules:
 - If a recommended person is on_leave/away, say so and name a backup.
 - Only name owners, experts or backups that decision_lineage, who_knows, profile, risk_radar or catch_up returned. Search results are keyword matches: never infer owners or people from them.
 - When a decision replaced older ones, say what changed and when. Flag stale docs that still state old decisions, and name their authors.
-- Only call open_ticket or remember when the user explicitly asks you to act or remember.
+- Only call fix_stale_docs, open_ticket or remember when the user explicitly asks you to act or remember. To fix stale docs, call fix_stale_docs once (it handles every doc).
 - Be concise: a direct answer first, then 2-5 short bullet points. Plain markdown, no tables.
 Today is ${today}.${memory}`;
 
@@ -97,7 +97,7 @@ export async function* runAgent(question: string, history: Turn[], session: stri
 
   // No model available (rate limit / outage): route deterministically and answer from the rows.
   if (llmFailed && !results.length) {
-    const [name, args] = route(question);
+    const [name, args] = route(question, subjects);
     yield { type: "tool", id: "fallback", name, args };
     const result = await runTool(tx, name, args, session);
     results.push({ name, args, result });
@@ -146,7 +146,7 @@ export async function* runAgent(question: string, history: Turn[], session: stri
 
   const nodes = [...new Set(results.flatMap((r) => r.result.nodes))];
   // only answers the graph actually supported become memories
-  if (results.some((r) => r.result.outcome === "ok" && !["open_ticket", "remember"].includes(r.name)))
+  if (results.some((r) => r.result.outcome === "ok" && !["open_ticket", "remember", "fix_stale_docs"].includes(r.name)))
     await saveEpisode(tx, { session, question, answer: finalText, subjects: [...new Set([...subjects, ...results.flatMap((r) => r.result.nodes.filter((n) => /^(person|team|system|project|topic):/.test(n)))])].slice(0, 6), decisions: valid.filter((k) => k.startsWith("decision:")).concat(nodes.filter((n) => n.startsWith("decision:"))) }).catch(() => {});
 
   yield { type: "answer", text: finalText.trim(), citations, invalidCitations: invalid, model, grounded, nodes, rebuilt };
@@ -194,8 +194,9 @@ export function inventedNames(text: string, vocab: Set<string>): string[] {
   return [...out];
 }
 
-function route(q: string): [string, Record<string, unknown>] {
+function route(q: string, subjects: string[] = []): [string, Record<string, unknown>] {
   const s = q.toLowerCase();
+  if (/\b(fix|open (a )?tickets?)\b/.test(s) && subjects.length) return ["fix_stale_docs", { subject: subjects[0] }];
   const subject = q.replace(/^(who|what|why|when|how|where)\b.*?\b(about|on|for|is|are|of)\s+/i, "").replace(/[?.!]+$/, "");
   if (/risk|bus factor|single point|what could go wrong/.test(s)) return ["risk_radar", {}];
   if (/what did i miss|catch me up|what changed|while i was (away|out)/.test(s)) return ["catch_up", { days: 30 }];
@@ -232,6 +233,9 @@ function composeFromRows(results: { name: string; result: ToolResult }[]): strin
     } else if (name === "search" && d.results) {
       out.push(`Top records for "${d.query}":`);
       for (const r of d.results.slice(0, 4)) out.push(`- ${r.title} (${r.date}): ${r.excerpt} [${r.key}]`);
+    } else if (name === "fix_stale_docs" && d.tickets) {
+      out.push(`Opened tickets to bring the stale **${d.subject.name}** docs in line with the current decision:`);
+      for (const t of d.tickets) out.push(`- ${t.already_open ? "Already open" : "Created"} [${t.key}] for "${t.title}" [${t.doc}] → ${t.assigned_to}`);
     } else if (name === "catch_up" && d.decisions) {
       out.push(`Since ${d.since} (${d.for}):`);
       for (const x of d.decisions.slice(0, 6)) out.push(`- ${x.date}: ${x.statement}${x.replaced.length ? " (replaced an earlier decision)" : ""} [${x.key}]`);

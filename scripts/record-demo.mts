@@ -213,7 +213,16 @@ async function main() {
     const ctx = await browser.newContext({ viewport: VIEW, recordVideo: { dir: path.join(TMP, `s${i}`), size: VIEW } });
     await ctx.addInitScript(OVERLAY);
     const page = await ctx.newPage();
-    await page.goto(URL, { waitUntil: "networkidle" });
+    for (let attempt = 1; ; attempt++) {
+      try {
+        await page.goto(URL, { waitUntil: "networkidle", timeout: 45_000 });
+        break;
+      } catch (e) {
+        if (attempt >= 4) throw e;
+        console.log(`goto retry ${attempt}: ${(e as Error).message.split("\n")[0]}`);
+        await page.waitForTimeout(3000 * attempt);
+      }
+    }
     await page.waitForTimeout(1500);
     try {
       await scene(page);

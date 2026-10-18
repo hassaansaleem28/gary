@@ -22,7 +22,7 @@ const Key = ({ k, onCite }: { k?: string | null; onCite: (k: string) => void }) 
     </button>
   ) : null;
 
-export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: any; onCite: (k: string) => void; onAsk: (q: string) => void }) {
+export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: any; onCite: (k: string) => void; onAsk: (q: string, opts?: { compare?: boolean }) => void }) {
   if (!data) return null;
   if (name === "decision_lineage" && data.current) {
     return (
@@ -82,7 +82,7 @@ export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: a
               </div>
             )}
             <button
-              onClick={() => onAsk(`Open a ticket for each stale ${data.subject?.name} doc, assigned to its author, to update it to the current decision.`)}
+              onClick={() => onAsk(`Fix the stale ${data.subject?.name} docs: open a ticket for each, assigned to its author.`, { compare: false })}
               className="mt-3 rounded-lg bg-bad/90 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-bad"
             >
               Fix it → open tickets for the doc owners
@@ -204,6 +204,20 @@ export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: a
             </div>
           ))}
         </div>
+      </Box>
+    );
+  }
+  if (name === "fix_stale_docs" && data.tickets) {
+    return (
+      <Box tone="good" title="Action taken">
+        <ul className="space-y-1 text-[12.5px]">
+          {data.tickets.map((t: any) => (
+            <li key={t.key}>
+              {t.already_open ? "↺ Already open" : "✅ Created"} <Key k={t.key} onCite={onCite} /> for <span className="text-white">{t.title}</span> → assigned to{" "}
+              <span className="text-white">{t.assigned_to}</span>
+            </li>
+          ))}
+        </ul>
       </Box>
     );
   }
