@@ -50,3 +50,5 @@ next-env.d.ts
 /docs/scene-*.webm
 /docs/failed-scene-*.png
 /docs/audio/
+/docs/demo-voiced*.mp4
+/docs/medium/
