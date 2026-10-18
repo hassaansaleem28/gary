@@ -106,6 +106,8 @@ If someone has messed with the demo before you, press **Reset demo** at the top.
 
 ## The graph
 
+![Gary's graph model: people, teams, systems, projects, topics, records, decisions and memory, with SUPERSEDES and ASSERTS highlighted](docs/graph-model.png)
+
 These are the things Gary keeps in FalkorDB.
 
 | Node | What it is |
@@ -144,6 +146,16 @@ And this is how they connect.
 | Finding things by name | FalkorDB full text indexes on names and on every record |
 
 The exact Cypher for every one of these lives in the [technical notes](docs/TECHNICAL.md).
+
+## Proof that the graph does the work
+
+A fair test for any graph project is simple: take the graph away and see what breaks. With Gary, almost everything breaks.
+
+* **Side by side, same everything.** The app runs a plain document chatbot next to Gary with the same records, the same language model and even FalkorDB's own full text index, just without the relationships. Ask "Can a customer get a full refund after 20 days?" and the plain chatbot says yes, 30 days. Gary says no, 14 days, because it follows the SUPERSEDES links. You can switch this comparison on in the app and see it yourself.
+* **Every answer shows its queries.** Each step Gary takes lists the exact Cypher it ran, how many rows came back and how long it took. Most answers need several traversals and around 20 milliseconds of graph time.
+* **The features only exist because of relationships.** Current versus replaced decisions, stale documents, who knows what, single points of knowledge, catching one person up, the time machine, multi step "why" answers and memory that expires are all walks through the graph. None of them can come from text similarity alone.
+* **Algorithms run inside the database.** Shortest path, betweenness centrality and label propagation run as FalkorDB procedures inside the same queries as the rest of the logic.
+* **The model cannot invent connections.** The agent only uses twelve fixed graph queries, and names are checked against the graph before and after the model writes an answer.
 
 ## Run it on your own machine
 
