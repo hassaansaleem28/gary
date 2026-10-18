@@ -25,7 +25,7 @@ export interface Turn {
 }
 
 const SYSTEM = (today: string, memory: string) => `You are Gary, the company brain of Kitestring (a 21-person B2B billing SaaS). You answer questions about how the company works using ONLY your tools, which query a FalkorDB knowledge graph built from Slack, Jira, Notion, meeting notes and GitHub.
-Tool choice: decision_lineage for "what is our X / why / when / what was decided"; who_knows for "who knows / who owns / who should I ask"; profile for "what/who is X"; connect for "how is A related to B"; risk_radar for risks, bus factor, what could go wrong; real_teams for how people really collaborate; search only as a last resort.
+Tool choice: decision_lineage for "what is our X / why / when / what was decided"; who_knows for "who knows / who owns / who should I ask"; profile for "what/who is X"; connect for "how is A related to B"; risk_radar for risks, bus factor, what could go wrong; catch_up for "what did I miss / what changed since"; real_teams for how people really collaborate; search only as a last resort.
 Rules:
 - Call a tool before answering any factual question. You may call several.
 - Cite the exact "key" values from tool results ONLY in square brackets (never in parentheses or prose) right after each claim, e.g. [slack:billing-0812c] [decision:billing-0812c-1]. Never invent keys, people, dates or numbers.
@@ -153,6 +153,7 @@ function route(q: string): [string, Record<string, unknown>] {
   const s = q.toLowerCase();
   const subject = q.replace(/^(who|what|why|when|how|where)\b.*?\b(about|on|for|is|are|of)\s+/i, "").replace(/[?.!]+$/, "");
   if (/risk|bus factor|single point|what could go wrong/.test(s)) return ["risk_radar", {}];
+  if (/what did i miss|catch me up|what changed|while i was (away|out)/.test(s)) return ["catch_up", { days: 30 }];
   if (/actually work|real team|collaborat/.test(s)) return ["real_teams", {}];
   if (/who (knows|owns|should|can|to ask)|expert/.test(s)) return ["who_knows", { subject }];
   if (/why|decid|policy|when|what('s| is) our|window|date/.test(s)) return ["decision_lineage", { subject }];
@@ -186,6 +187,10 @@ function composeFromRows(results: { name: string; result: ToolResult }[]): strin
     } else if (name === "search" && d.results) {
       out.push(`Top records for "${d.query}":`);
       for (const r of d.results.slice(0, 4)) out.push(`- ${r.title} (${r.date}): ${r.excerpt} [${r.key}]`);
+    } else if (name === "catch_up" && d.decisions) {
+      out.push(`Since ${d.since} (${d.for}):`);
+      for (const x of d.decisions.slice(0, 6)) out.push(`- ${x.date}: ${x.statement}${x.replaced.length ? " (replaced an earlier decision)" : ""} [${x.key}]`);
+      for (const t of d.open_tickets.slice(0, 3)) out.push(`- Open: ${t.title}${t.assignee ? ` → ${t.assignee}` : ""} [${t.key}]`);
     } else if (name === "real_teams" && d.clusters) {
       for (const c of d.clusters) out.push(`- ${c.members.join(", ")}`);
     } else if (result.outcome === "empty") {

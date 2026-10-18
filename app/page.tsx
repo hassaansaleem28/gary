@@ -35,6 +35,8 @@ const SUGGESTIONS: { area: string; q: string }[] = [
   { area: "Risk", q: "What are our biggest knowledge risks right now?" },
   { area: "Multi-hop", q: "How is Kai Johnson connected to the refund policy?" },
   { area: "Org reality", q: "How do people actually work together here?" },
+  { area: "Catch up", q: "I'm Priya, back from 3 weeks off. What did I miss?" },
+  { area: "Decision lineage", q: "Who decided our API rate limits, and why?" },
   { area: "Honesty", q: "Who owns the mobile app?" },
 ];
 

@@ -146,6 +146,38 @@ export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: a
       </Box>
     );
   }
+  if (name === "catch_up" && data.decisions) {
+    return (
+      <Box title={`What changed since ${data.since} · for ${data.for}`}>
+        <div className="space-y-2 text-[12.5px]">
+          {data.decisions.map((d: any) => (
+            <div key={d.key} className="border-l-2 border-accent/60 pl-2.5">
+              <div>
+                <span className="font-mono text-[11px] text-muted">{d.date}</span> <span className="text-white">{d.statement}</span>
+                {d.status === "superseded" && <span className="ml-1.5 rounded bg-white/5 px-1.5 text-[10px] font-bold text-muted">SINCE REPLACED</span>}
+              </div>
+              <div className="text-[11px] text-muted">
+                {d.decided_by?.length ? `${d.decided_by.join(", ")} · ` : ""}
+                {d.about?.join(", ")}
+                {d.replaced?.length ? <span className="text-accent"> · replaced: {d.replaced[0]}</span> : null} <Key k={d.decided_in} onCite={onCite} />
+              </div>
+            </div>
+          ))}
+          {data.open_tickets?.length > 0 && (
+            <div className="pt-1 text-[11.5px] text-muted">
+              Open tickets:{" "}
+              {data.open_tickets.map((t: any) => (
+                <Key key={t.key} k={t.key} onCite={onCite} />
+              ))}
+            </div>
+          )}
+          {data.people_going_away?.length > 0 && (
+            <div className="text-[11.5px] text-muted">Going away: {data.people_going_away.map((a: any) => `${a.person} from ${a.from}`).join(" · ")}</div>
+          )}
+        </div>
+      </Box>
+    );
+  }
   if (name === "connect" && data.path) {
     return (
       <Box title={`Path · ${data.hops} hops`}>
