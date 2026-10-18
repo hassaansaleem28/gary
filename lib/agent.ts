@@ -142,7 +142,9 @@ export async function* runAgent(question: string, history: Turn[], session: stri
     for (const k of invalid) finalText = finalText.split(`[${k}]`).join("");
   }
   const valid = cited.filter((k) => allowed.has(k));
-  const citations = await loadCitations(tx, valid.length ? valid : [...allowed].slice(0, 6));
+  // with no explicit citations, fall back to the tools' records, but never when the subject wasn't found (those would be unrelated)
+  const nothingFound = results.some((r) => r.result.outcome === "unknown_subject") && !results.some((r) => r.result.outcome === "ok" && r.name !== "search");
+  const citations = await loadCitations(tx, valid.length ? valid : nothingFound ? [] : [...allowed].slice(0, 6));
 
   const nodes = [...new Set(results.flatMap((r) => r.result.nodes))];
   // only answers the graph actually supported become memories
