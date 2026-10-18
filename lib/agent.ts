@@ -206,13 +206,22 @@ function route(q: string, subjects: string[] = []): [string, Record<string, unkn
   return ["search", { query: q }];
 }
 
-function composeFromRows(results: { name: string; result: ToolResult }[]): string {
+export function composeFromRows(results: { name: string; result: ToolResult }[]): string {
   const out: string[] = [];
+  // one honest "not in the graph" line, however many lookups the model tried
+  const unknown = [...new Set(results.filter((r) => r.result.outcome === "unknown_subject").map((r) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const d = r.result.data as Record<string, any>;
+    return String(d.subject ?? d.person ?? d.unknown?.join(", "));
+  }))];
+  const anyKnown = results.some((r) => r.result.outcome === "ok" && r.name !== "search");
+  if (unknown.length) out.push(`**Not in the company graph.** Kitestring has no person, team, system, project or topic called ${unknown.map((u) => `"${u}"`).join(" or ")}, so there is no owner or decision I can point to.`);
   for (const { name, result } of results) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const d = result.data as Record<string, any>;
-    if (result.outcome === "unknown_subject") {
-      out.push(`**Not in the company graph.** I couldn't find "${d.subject ?? d.unknown?.join(", ")}" among Kitestring's people, teams, systems, projects or topics.${d.similar?.length ? ` Did you mean: ${d.similar.join(", ")}?` : ""}`);
+    if (result.outcome === "unknown_subject") continue;
+    if (name === "search" && unknown.length && !anyKnown) {
+      if (d.results?.length) out.push(`Nearest keyword matches, for reference only: ${d.results.slice(0, 2).map((r: { title: string; key: string }) => `${r.title} [${r.key}]`).join(" · ")}`);
       continue;
     }
     if (name === "decision_lineage" && d.current) {
