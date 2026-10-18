@@ -4,7 +4,7 @@
 
 import { animate, splitText, stagger, svg } from "animejs";
 import { useLenis } from "lenis/react";
-import { ArrowRight, CalendarDays, FileText, GitPullRequest, MessageSquare, Network, Play, Ticket } from "lucide-react";
+import { ArrowRight, CalendarDays, FileText, GitPullRequest, MessageSquare, Network, Play, Ticket, X } from "lucide-react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -686,10 +686,27 @@ const DEMO_YOUTUBE_ID = process.env.NEXT_PUBLIC_DEMO_YOUTUBE_ID || "J9fUnDdBwuw"
 
 export function Demo() {
   const [play, setPlay] = useState(false);
+  useEffect(() => {
+    if (!play) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPlay(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [play]);
   return (
     <section id="demo" className="mx-auto max-w-6xl px-5 py-24">
       <SectionTitle eyebrow="See it think" title={<>Watch Gary <span className="italic text-accent">work.</span></>} sub="Recorded by driving the real, deployed app: stale answers, decision lineage, a live policy change, memory going stale, the time machine, and an honest “I don't know”." />
-      <Reveal className="mt-12">
+      <Reveal className="relative mt-12">
+        {play && (
+          <motion.button
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => setPlay(false)}
+            className="absolute -top-12 right-0 z-10 flex items-center gap-1.5 rounded-full border border-line bg-panel px-3.5 py-1.5 text-[13px] text-ink shadow-[var(--shadow)] transition-colors hover:border-accent"
+            aria-label="Close video"
+          >
+            <X size={14} /> Close video
+          </motion.button>
+        )}
         <Backlight blur={34} className="rounded-3xl">
           <div className="relative aspect-video overflow-hidden rounded-3xl border border-line bg-panel">
             {play && DEMO_YOUTUBE_ID ? (
