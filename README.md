@@ -1,251 +1,185 @@
-# gary.
+<p align="center">
+  <img src="docs/gary.svg" width="96" alt="Gary" />
+</p>
 
-**Every company has a Gary: the person who has been there forever and knows *why* everything is the way it is. When Gary leaves, the company forgets. We built a Gary that never leaves.**
+<h1 align="center">gary.</h1>
 
-Gary is a company-brain agent built on **FalkorDB**. It reads a company's Slack, Jira, Notion/help center, meeting notes and GitHub into one graph of people, teams, systems, projects, records and **decisions**. It answers by walking that graph: what is *currently* true, which decisions it replaced, who decided, why, who actually knows, and **which docs are now lying**. Every answer shows the Cypher it ran and cites only records the graph returned.
+<p align="center">
+  <b>Every company has a Gary. Ours never leaves.</b><br/>
+  An AI agent that actually understands how your company works, because it reads everything into a FalkorDB graph and answers by walking it.
+</p>
 
-> Graph Hacks: Context for AI Agents (WeMakeDevs × FalkorDB), October 2026
-> **Tracks entered: Track 03 Company Brain (primary), Track 01 Agents That Act on Connected Data, Track 02 Agent Memory and Coordination**
+<p align="center">
+  <a href="https://gary-company-brain.vercel.app"><img alt="Live demo" src="https://img.shields.io/badge/live%20demo-gary--company--brain.vercel.app-ff5a1f?style=for-the-badge"></a>
+  <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks 2026" src="https://img.shields.io/badge/Graph%20Hacks%202026-Company%20Brain-17140f?style=for-the-badge"></a>
+  <img alt="Built on FalkorDB" src="https://img.shields.io/badge/built%20on-FalkorDB-ff5a1f?style=for-the-badge">
+</p>
 
-- **Live demo:** https://gary-company-brain.vercel.app (FalkorDB Cloud ap-south-1 + Vercel bom1)
-- **Demo video:** [`docs/demo.mp4`](docs/demo.mp4) (4½ min captioned walkthrough, recorded by driving the deployed app)
-- **Repo:** https://github.com/hassaansaleem28/gary
+<p align="center">
+  <a href="https://gary-company-brain.vercel.app"><b>Try it live</b></a> &nbsp;·&nbsp;
+  <a href="https://gary-company-brain.vercel.app/#demo"><b>Watch the demo</b></a> &nbsp;·&nbsp;
+  <a href="docs/TECHNICAL.md"><b>Technical notes</b></a>
+</p>
 
-![Gary landing page: the hero graph plays the refund-policy story](docs/landing.png)
+<br/>
 
-![The /app workspace: step trail, decision lineage, stale docs and the highlighted graph](docs/workspace.png)
+![Gary landing page](docs/landing.png)
 
----
+## Every company has a Gary
 
-## The problem (from what people actually complain about)
+You know the guy. He has been at the company since the early days. Ask him why the refund window is 14 days and he will tell you the whole story in two minutes: the refund abuse in July, the Slack thread where Maya approved the change, and the old Notion page you should stop trusting. Ask him who really understands the ledger and he will say "talk to Tomasz, but do it before November, he is going on leave."
 
-Before building, we read founder, engineer and operator discussions about company knowledge. The same complaints come up everywhere:
+Every company has one person like this. The day Gary goes on holiday, things slow down. The day he leaves, the company simply forgets.
 
-| Complaint | What we found |
+So I built a Gary that never leaves.
+
+## So what is it, exactly?
+
+Gary is an AI agent for company knowledge. It reads your Slack, Jira, Notion, meeting notes and GitHub. But instead of throwing all of that into a search index, it builds a graph in FalkorDB. People, teams, systems, projects, every record, and most importantly the **decisions** people made and which older decisions they replaced.
+
+When you ask Gary something, it does not go looking for text that sounds similar to your question. It walks the graph. That is why it can tell you what is true right now, what used to be true, who decided it, why they decided it, and which docs are quietly lying to you.
+
+![Gary answering a question with its steps, decision history and sources](docs/workspace.png)
+
+## "Okay, but isn't this just another chatbot on top of documents?"
+
+Fair question. My friend asked me the exact same thing, so let me explain with one example.
+
+In the demo company, a Notion page from February says customers can get a full refund within 30 days. In June, a pricing meeting changed the rule for annual plans. In August, the CEO cut the monthly window to 14 days in a Slack thread because people were abusing refunds. Nobody updated the Notion page. Nobody updated the support playbook. Nobody updated the public help center article.
+
+Now a support person asks: *"Can a customer get a full refund after 20 days?"*
+
+A normal document chatbot finds the pages with the right words and says yes, 30 days. Very confident. Completely wrong.
+
+Gary sees that the August decision replaced the June one, which replaced the February one. So it says no, it has been 14 days since August 12, Maya decided it in #billing because of the refund abuse ticket. Then it adds the part nobody asked for but everybody needs: three docs still say 30 days, here are the people who wrote them, should I open tickets for them?
+
+The app shows both answers side by side. Same records, same language model. The only difference is the graph.
+
+## What Gary can do
+
+| | |
 |---|---|
-| **Stale knowledge gives confident wrong answers** | "Stale knowledge does not announce itself." A [company-brain essay](https://marcosnewsletter.substack.com/p/how-to-build-a-company-brain) and its commenters call *"which parts are current and authoritative at the moment of action"* the next problem after building the brain. A [Slite survey](https://slite.com/learn/dangers-of-stale-documentation) reports that most respondents had seen an AI tool surface an outdated doc as fact. |
-| **Decisions get lost in Slack threads** | "A decision made in a Slack thread last week has the same retrieval weight as a requirements document written six months ago" ([DEV](https://dev.to/rubab_zahra_9260/your-ai-gives-confident-wrong-answers-because-your-docs-are-a-mess-not-because-the-model-is-bad-57n9)). Teams [keep reopening the same decisions](https://thehybridleader.substack.com/p/the-decision-log-stop-reopening-the-same-engineering-decisions). |
-| **"Who do I even ask?"** | The main onboarding bottleneck is [knowing who to ask](https://www.read.ai/it/articles/how-to-improve-the-employee-onboarding-experience). |
-| **Bus factor** | When one person holds the knowledge, ["the interpretive layer" leaves with them](https://developers.fabric.so/blog/the-bus-factor). |
-| **Search that doesn't act** | The top criticism of enterprise search: ["great at finding information but stops short of actually doing anything with it"](https://devrev.ai/blog/top-glean-alternatives). |
+| **Knows what is true right now** | Every decision is linked to the one it replaced, so Gary answers with the current one and tells you what changed and when. |
+| **Finds stale docs by itself** | Any doc that still states an old decision gets flagged, along with its author. |
+| **Knows who actually knows** | Not the org chart. The people who wrote, reviewed and worked on something recently. Asking a question counts less than answering one. |
+| **Spots risk early** | If one person holds most of the knowledge about a system and is going on leave next month, Gary tells you and suggests backups from the graph. |
+| **Time machine** | Ask what the policy was on July 1, or drag a timeline and watch the whole company graph rebuild itself day by day. |
+| **Catches you up** | "I'm back from three weeks off, what did I miss?" gives you only the changes in your own part of the company. |
+| **Explains the real why** | Usage pricing launches on December 1 because the ledger migration moved to October 28, which moved because of the SOC2 audit freeze. Three hops, and Gary walks all of them. |
+| **Stays current** | Post a new Slack message and the graph updates in milliseconds. Old decisions get replaced, and anything Gary remembered from before is marked outdated. |
+| **Does the work** | Click "Fix it" and Gary opens a ticket for every stale doc, assigned to the person who wrote it. |
+| **Says "I don't know"** | If something is not in the graph, Gary tells you plainly. No guessing. |
+| **Works with other agents** | All the same tools are available over MCP, so Claude Desktop, Claude Code or any MCP client can use Gary as its company brain. |
 
-Every one of these is about **relationships, not text**. A vector index cannot know that an August Slack reply overrides a March Notion page. A graph can, through one `SUPERSEDES` edge.
+## The time machine
 
-## What Gary does (mapped to the Track 3 focus areas)
+Honestly, this one is my favourite.
 
-| Track 3 focus area | How Gary does it in the graph |
+Gary never deletes a decision. When something gets replaced, the old decision stays in the graph with the date it stopped being true. That small detail means you can rewind the whole company to any day.
+
+Open the Time machine tab and press play. You will see records appear on the day they were written, people show up when they joined (Kai only appears in October), decisions turn grey the moment they are replaced, and docs turn red on the exact day they went stale. On the side, a small card shows what Kitestring believed about the refund policy at that moment, and it rewrites itself as you scrub.
+
+You can also just ask: *"What was our refund policy on July 1?"* Gary answers with what was true that day, who had decided it, what replaced it later, and which docs were already out of date. Then one click rewinds the full graph to that date.
+
+![The time machine rebuilding the company graph as of a past date](docs/time-machine.png)
+
+## Try it yourself, it takes two minutes
+
+Open the [live demo](https://gary-company-brain.vercel.app/app) and ask these in order:
+
+1. **Can a customer get a full refund after 20 days?** Look at the plain chatbot answer underneath, then press **Fix it**.
+2. **Who should I talk to about ledger-db?** Notice the leave warning and the backups.
+3. **What was our refund policy on July 1?** Then press **Rewind the whole graph**.
+4. Open **Live feed**, post the preset where the CEO changes the refund policy again, then ask question 1 one more time. Look at the memory note at the top.
+5. **Who owns the mobile app?** There is no mobile app. Gary will tell you so.
+
+If someone has messed with the demo before you, press **Reset demo** at the top. It rebuilds everything from the raw data in a few seconds.
+
+## How it works, in simple words
+
+1. **Read everything.** Each Slack message, ticket, doc, meeting and pull request becomes a node in the graph. Whoever wrote it, reviewed it, was assigned to it or attended the meeting gets connected to it.
+2. **Link it up.** Mentions of people, systems, projects and topics are matched against what the graph already knows, so every new record plugs into the right places on its own.
+3. **Understand the decisions.** A language model reads each record while looking at the decisions currently in force. It writes down new decisions, which old ones they replace, why they were made, and which docs repeat them.
+4. **Answer by walking the graph.** The agent can only use 12 fixed graph queries. It never writes its own database queries, so it cannot invent a connection that does not exist.
+5. **Check everything.** Every source Gary cites must come back from the graph in that same turn, and every person or team it names must really exist. If the model makes something up, that answer is thrown away and rebuilt from the graph data, and the screen tells you it happened.
+6. **Remember, carefully.** Each answer is saved together with the decisions it relied on. If one of those decisions changes later, the memory is flagged as outdated instead of being trusted blindly.
+
+## The graph
+
+These are the things Gary keeps in FalkorDB.
+
+| Node | What it is |
 |---|---|
-| **Knowledge from multiple sources** | 5 connectors (Slack, Jira, Notion + help center, meetings, GitHub) become `Source` nodes. Authors, reviewers, assignees and attendees become edges. Mentions are linked with a gazetteer read *from the graph itself*. |
-| **Ownership and expertise** | `who_knows` ranks people by recency-weighted, role-weighted traversal (`AUTHORED`, `ASSIGNED`, `REVIEWED`...) and also returns the owning team and lead. It flags people who are about to be on leave. |
-| **Decision lineage** | Decisions are extracted with *graph context* (the LLM sees the currently active decisions) into `(:Decision)-[:SUPERSEDES]->(:Decision)` chains with `DECIDED_IN`, `MADE` and `BECAUSE_OF` edges, traversed with `SUPERSEDES*1..6`. |
-| **Current knowledge** | `catch_up` answers "what did I miss since…" per person. The live feed ingests a new message. If it contains a decision, older ones are superseded and **every living doc that still `ASSERTS` the old decision is flagged stale**. Memories that relied on it are flagged **outdated**. |
-| **Sourced answers** | Every citation in the answer must be a key returned by a tool in this turn; anything else is stripped. Each answer shows the exact Cypher, params, row counts and timings. |
+| Person, Team | Who works here, who leads what, and when they joined or go on leave |
+| System, Project, Topic | The things people work on and talk about, like ledger-db, Project Atlas or the refund policy |
+| Message, Ticket, Doc, Meeting, PR | Every record from the five tools, with its author, date and link |
+| Decision | A rule, plan or date someone agreed on, with the day it started and the day it was replaced |
+| Finding | Gary's own memory of past answers |
 
-**Plus:**
-- **Acts** (Track 1): "Fix it" opens tickets in the graph, assigned to the stale docs' authors (or the owning team's lead).
-- **Remembers** (Track 2): episodic memory as `Finding` nodes that know when they've gone stale.
-- **Algorithms as tools** (Track 1): `algo.SPpaths`, `algo.betweenness`, `algo.labelPropagation`.
-- **MCP server** (Track 1): the same tools are exposed to Claude Desktop, Claude Code or any MCP client.
+And this is how they connect.
 
-## Demo storyline (try these)
-
-1. **"Can a customer get a full refund after 20 days?"** Plain RAG (shown side by side) retrieves the June meeting notes and says *yes, 30 days*. Gary walks `SUPERSEDES` and answers **no: 14 days since Aug 12, decided by Maya in #billing because of BILL-212 (refund abuse)**. It shows the two older decisions it replaced and flags **3 docs that still say 30 days** (Notion policy, support playbook, help center) with their authors. It also surfaces Carlos's confused #support message.
-2. Click **"Fix it"**: `fix_stale_docs` opens one ticket per stale doc, assigned to its author (Jordan, Mei). It is idempotent, and the tickets appear as red nodes in the graph.
-3. **"Who should I talk to about ledger-db?"** Tomasz holds about 55% of the hands-on knowledge, **but he is on parental leave from Nov 2**, inside the Atlas rollback window. Omar and Hana are the backups.
-4. **"What are our biggest knowledge risks right now?"** Knowledge concentration per system/project, upcoming absences, betweenness-central knowledge brokers and stale docs.
-5. **"Why is usage-based pricing launching Dec 1?"** Multi-hop: Dec 1 replaced Nov 15 because the Atlas ledger cutover is Oct 28, which moved there because of the SOC2 audit change freeze.
-6. **Live feed:** post the preset "CEO changes the refund policy again". Gary extracts a new decision and supersedes the 14-day one. Ask question 1 again: the old memories are marked **OUTDATED** and the answer changes.
-7. **"I'm Priya, back from 3 weeks off. What did I miss?"** `catch_up` scopes recent decisions, reversals, open tickets and absences to Priya's part of the graph (what her team owns and what she has touched).
-8. **"Who owns the mobile app?"** The answer is **not in the graph**. Gary resolves names strictly, so "mobile app" never silently becomes `web-app`.
-
-## The interface
-
-- **`/`: landing page.** Lenis smooth scrolling. The hero graph assembles itself with an **anime.js** timeline and plays the real refund-policy story: the question arrives, a pulse walks to the current decision, older decisions are struck and their `SUPERSEDES` edges turn red, stale docs ring red, and Gary answers. Below it: a "plain RAG vs Gary" comparison, an animated-beam pipeline (5 sources → FalkorDB → Gary), a feature grid where each tile is a small live animation, live counters read from the graph, the demo video, and the Cypher behind it all.
-- **Gary is a character.** An SVG face whose eyes follow your cursor, which blinks on a random anime.js cadence and reflects the agent's state: *thinking* while tools run, *happy* when an answer is verified, and *confused* when something isn't in the graph.
-- **`/app`: the workspace.** A Manus-style step trail ("Tracing decision lineage · refund policy", with the Cypher one click away), insight cards built from the tool rows, a themed force graph that highlights exactly the nodes an answer used, the live feed, and a source drawer. On phones, it switches between Chat, Graph and Live with an animated tab control. Deep links: `/app?q=…` asks on arrival, `/app?tab=live` opens the live feed.
-- **Light and dark** paper-and-ink themes, switched with a circular view-transition reveal.
-
-Built with **motion** (motion.dev), **anime.js v4**, **Lenis**, **next-themes**, the **Animate UI** theme-toggler primitive, and **Magic UI** animated beam, number ticker, backlight and marquee. The components are vendored in `components/ui/` with their source noted.
-
-## Architecture
-
-```
- Slack ─┐                                        ┌─────────────── FalkorDB ───────────────┐
- Jira ──┤   normalise    gazetteer linking       │ Person Team System Project Topic       │
- Notion ┼─► Source ───►  (read from graph) ───►  │ Message Ticket Doc Meeting PR          │
- Mtgs ──┤                                        │ Decision ─SUPERSEDES─► Decision        │
- GitHub ┘   LLM decision extraction  ◄─context── │ Doc ─ASSERTS─► Decision  Finding (mem) │
-            (active decisions from the graph)    └────────────▲───────────────────────────┘
-                                                              │ parameterised Cypher only
- Question ─► memory recall ─► LLM picks tool(s) ─► Tool catalogue (11) ─► rows ─► answer
-                                                   + citation validation + graph highlight
-```
-
-- **Next.js 16** (App Router) web app; API routes stream NDJSON agent events (tool call → Cypher → rows → answer).
-- **FalkorDB** via the official `falkordb` Node client. Reads go through `GRAPH.RO_QUERY`.
-- **LLM:** any OpenAI-compatible endpoint. We use **Groq** (`openai/gpt-oss-120b`, falling back to `gpt-oss-20b` and then `qwen3.8-27b` on rate limits). If no model is available, Gary answers from the rows alone.
-- **Graph view:** `react-force-graph-2d` highlights exactly the nodes the answer used.
-- **MCP:** `@modelcontextprotocol/sdk` stdio server in `mcp/server.ts`.
-
-### Design rules (borrowed from the organisers' "agent that reasons over a graph" guide)
-- **No model-written Cypher.** The model chooses from 11 fixed, parameterised tools.
-- **Resolve before reasoning.** Names are matched against the graph (exact → alias → full-text with ≥50% word coverage). Unknown means *unknown_subject*, never a guess.
-- **Answers carry their path.** Citations are validated against tool output, and the UI shows every query.
-- **Names are validated too.** Our own demo recording caught the model citing real records while inventing a "Product-Mobile team led by Priya Patel". Every capitalised name pair and hyphenated proper noun in an answer must now exist in the graph or in this turn's tool results. Otherwise the answer is rebuilt from the graph rows, and the UI says which names were rejected. Backups for people going on leave are computed in Cypher, so the model never has to guess one.
-- **Memory is just nodes**, linked to what it is about, with timestamps, so it can go stale with the graph.
-
-## Graph data model
-
-```cypher
-(:Company)<-[:PART_OF]-(:Team)
-(:Person {name, handle, role, joined, away_from?, away_to?})-[:MEMBER_OF]->(:Team)
-(:Person)-[:LEADS]->(:Team | :Project)
-(:Team)-[:OWNS]->(:System | :Topic)
-(:Project {status})-[:INVOLVES]->(:Team)
-(:Project)-[:USES]->(:System)
-
-// every record from every connector
-(:Source:Message | :Source:Ticket | :Source:Doc {living} | :Source:Meeting | :Source:PR
-   {key, title, text, at, origin, url, conv})
-(:Person)-[:AUTHORED | REVIEWED | ASSIGNED | REPORTED | ATTENDED]->(:Source)
-(:Source)-[:MENTIONS]->(:Person | :System | :Project | :Topic)
-(:Source)-[:CHANGES]->(:System)               // PRs
-(:Source)-[:REFERENCES]->(:Source)            // PLAT-88, RFC-007 ...
-(:Message)-[:REPLY_TO]->(:Message)            // threads
-
-// decisions: extracted with graph context
-(:Decision {statement, at, status: 'active' | 'superseded'})
-(:Person)-[:MADE]->(:Decision)-[:ABOUT]->(:Topic | :System | :Project)
-(:Decision)-[:DECIDED_IN]->(:Source)
-(:Decision)-[:BECAUSE_OF]->(:Source)          // evidence: incidents, tickets
-(:Decision)-[:SUPERSEDES]->(:Decision)
-(:Source)-[:ASSERTS]->(:Decision)             // docs/tickets/PRs restating a decision
-
-// derived + memory
-(:Person)-[:COLLABORATES {w}]->(:Person)      // same thread/ticket/PR/meeting, or @-mentions
-(:Finding {text, at, session, kind})-[:ABOUT]->(...)
-(:Finding)-[:CITES]->(:Decision)              // → memory goes "outdated" when the decision is superseded
-```
-
-Every node has a `:Node` label with a range index on `key`. Entities carry `:Entity` with a **full-text index** on `name` and aliases, and sources have a **full-text index** on `title` and `text`.
-
-## The Cypher Gary depends on
-
-All tools live in [`lib/tools.ts`](lib/tools.ts). These are the core ones:
-
-**Decision lineage:** the longest `SUPERSEDES` chain behind each active decision about a subject (or the systems it uses):
-```cypher
-MATCH (s:Entity {key:$key})
-MATCH (cur:Decision {status:'active'})-[:ABOUT]->(x)
-WHERE x = s OR (s)-[:USES]->(x)
-OPTIONAL MATCH chain = (cur)-[:SUPERSEDES*1..6]->(:Decision)
-WITH cur, chain ORDER BY length(chain) DESC
-WITH cur, collect(chain)[0] AS longest
-RETURN cur.key AS key, [n IN nodes(longest) | n.key] AS lineage
-```
-
-**Stale docs:** living docs that state (or were the origin of) a superseded decision and don't assert the current one:
-```cypher
-MATCH (cur:Decision)-[:SUPERSEDES*1..6]->(old:Decision) WHERE cur.key IN $heads
-MATCH (doc:Doc {living:true})
-WHERE ((doc)-[:ASSERTS]->(old) OR (old)-[:DECIDED_IN]->(doc)) AND NOT (doc)-[:ASSERTS]->(cur)
-OPTIONAL MATCH (a:Person)-[:AUTHORED]->(doc)
-RETURN DISTINCT doc.key AS doc, doc.title AS title, old.key AS old, cur.key AS current, a.name AS author
-```
-
-**Who knows:** role-weighted, recency-decayed expertise (questions count less than answers):
-```cypher
-MATCH (s:Entity {key:$key})
-OPTIONAL MATCH (s)-[:USES]->(sys:System)
-WITH s, collect(sys) + [s] AS targets
-UNWIND targets AS t
-MATCH (src:Source)-[:MENTIONS|CHANGES]->(t)
-MATCH (p:Person)-[r:AUTHORED|REVIEWED|ATTENDED|ASSIGNED|REPORTED]->(src)
-WITH p, src,
-     CASE WHEN t = s THEN 1.0 ELSE 0.5 END
-     * CASE type(r) WHEN 'AUTHORED' THEN 3.0 WHEN 'ASSIGNED' THEN 2.5 WHEN 'REVIEWED' THEN 1.5 WHEN 'REPORTED' THEN 1.0 ELSE 0.7 END
-     * CASE WHEN src:Message AND src.text CONTAINS '?' THEN 0.3 ELSE 1.0 END
-     * exp(-1.0 * ($now - src.at) / $halfLife) AS w
-WITH p, src, max(w) AS w ORDER BY src.at DESC
-WITH p, sum(w) AS score, count(src) AS n, max(src.at) AS last, collect(src.key)[0..3] AS evidence
-RETURN p.name, score, n, last, evidence, p.away_from ORDER BY score DESC LIMIT 5
-```
-
-**Graph algorithms as agent tools:**
-```cypher
-// how are two things connected? (multi-hop, any direction)
-MATCH (a:Node {key:$a}), (b:Node {key:$b})
-CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: $rels, relDirection: 'both', maxLen: 8, pathCount: 1})
-YIELD path RETURN [n IN nodes(path) | n.name], [r IN relationships(path) | type(r)]
-
-// knowledge brokers on the derived collaboration graph
-CALL algo.betweenness({nodeLabels: ['Person'], relationshipTypes: ['COLLABORATES']}) YIELD node, score
-
-// who actually works together vs the org chart
-CALL algo.labelPropagation({nodeLabels: ['Person'], relationshipTypes: ['COLLABORATES'], maxIterations: 20})
-YIELD node, communityId
-```
-
-**Entity resolution** (exact, then alias, then full-text with word coverage), **knowledge concentration / bus factor**, **memory recall with staleness**, **ticket creation** and the **ingestion writers** (MERGE-based, idempotent) are in [`lib/tools.ts`](lib/tools.ts), [`lib/memory.ts`](lib/memory.ts) and [`lib/ingest/write.ts`](lib/ingest/write.ts).
-
-### Why the graph is not decoration
-Remove FalkorDB and Gary cannot do any of these: tell current from superseded, find stale docs, rank expertise, detect a single point of knowledge, explain *why* across hops, or invalidate memories. The side-by-side "plain RAG" panel uses the same records, the same model and FalkorDB's full-text index, but no relationships. It confidently answers the refund and Friday-deploy questions with the stale policy.
-
-## Run it locally
-
-Requirements: Docker, Node 20+, pnpm, and a free [Groq API key](https://console.groq.com/keys) (or any OpenAI-compatible endpoint, including local Ollama).
-
-```bash
-git clone https://github.com/hassaansaleem28/gary && cd gary
-docker compose up -d                 # FalkorDB on :6379 and FalkorDB Browser on :3000
-cp .env.example .env.local           # add your LLM_API_KEY
-pnpm install
-pnpm seed                            # builds the Kitestring graph from data/kitestring (cached extractions)
-pnpm dev --port 3100                 # http://localhost:3100 (landing) and /app (workspace)
-```
-
-Other scripts:
-
-| Command | What it does |
+| Relationship | Meaning |
 |---|---|
-| `pnpm seed --fresh` | Re-run LLM decision extraction for every record against the evolving graph |
-| `pnpm ask "Who knows about SSO?"` | Run the agent in the terminal, printing every tool call and query |
-| `pnpm tools who_knows '{"subject":"ledger-db"}'` | Run one graph tool with no LLM |
-| `pnpm mcp` | Start the MCP server (stdio) |
+| MEMBER_OF, LEADS, OWNS, USES | The org chart and who owns which system or topic |
+| AUTHORED, REVIEWED, ASSIGNED, ATTENDED | Who did the work on each record |
+| MENTIONS, CHANGES, REFERENCES, REPLY_TO | What each record talks about, touches or points to |
+| MADE, ABOUT, DECIDED_IN, BECAUSE_OF | Who made a decision, what it is about, where it was made and why |
+| SUPERSEDES | A newer decision replacing an older one. This one edge is the heart of Gary |
+| ASSERTS | A doc or ticket repeating a decision. When that decision is replaced, the doc is stale |
+| COLLABORATES | Worked out from shared threads, tickets and meetings, used to find real teams |
+| CITES | Which decisions a memory relied on, so the memory can expire |
 
-**Use Gary from Claude Desktop / Claude Code (MCP):**
-```json
-{
-  "mcpServers": {
-    "gary": {
-      "command": "pnpm",
-      "args": ["--dir", "/path/to/gary", "-s", "mcp"],
-      "env": { "FALKORDB_URL": "falkor://localhost:6379", "GRAPH_NAME": "kitestring" }
-    }
-  }
-}
-```
+## The graph queries behind each feature
 
-### Environment
-| Variable | Default | |
-|---|---|---|
-| `FALKORDB_URL` | `falkor://localhost:6379` | `falkor://user:pass@host:port` for FalkorDB Cloud |
-| `GRAPH_NAME` | `kitestring` | One graph per company/tenant |
-| `LLM_BASE_URL` | Groq | Any OpenAI-compatible endpoint |
-| `LLM_API_KEY` | – | |
-| `LLM_MODEL` / `LLM_FAST_MODEL` | `openai/gpt-oss-120b` / `openai/gpt-oss-20b` | Fallback chain on 429 |
+| Feature | How the graph answers it |
+|---|---|
+| Decision history | Follows SUPERSEDES links up to six steps back from every decision that is still in force |
+| Stale docs | Finds docs that ASSERT a decision which has since been replaced |
+| Time machine | Keeps only the decisions whose start date is before the chosen day and whose replacement date is after it |
+| Who knows | Weighs authored, assigned, reviewed and attended work, with older work fading over about four months |
+| Risk radar | Measures how much of the knowledge about each system sits with one person, plus upcoming absences |
+| Knowledge brokers | FalkorDB betweenness centrality on the collaboration graph |
+| Real teams | FalkorDB label propagation, compared with the org chart |
+| How is A connected to B | FalkorDB shortest path search in any direction |
+| Finding things by name | FalkorDB full text indexes on names and on every record |
 
-## Data
+The exact Cypher for every one of these lives in the [technical notes](docs/TECHNICAL.md).
 
-All data is **synthetic**. Kitestring is a fictional 21-person B2B billing startup: 65 records across Slack (33 messages), Jira (11), Notion + help center (8), meetings (3) and GitHub (10). The storylines (refund-policy reversals, a SOC2-delayed migration, a staff engineer going on leave, a lifted deploy freeze, a data-retention exception) are planted so that the answers *depend on how things connect*. No private, personal or scraped data is used.
+## Run it on your own machine
 
-`data/kitestring/extractions.json` caches the LLM's decision extraction. We ran extraction with `gpt-oss-120b`, then **reviewed it by hand**: we fixed a handful of mislabelled supersessions, such as a PR that was wrongly treated as replacing the release policy. That keeps the demo deterministic and the rate limits low. Live-feed messages always go through the LLM against the current graph.
+1. You need Docker, Node 20 or newer, pnpm, and a free Groq API key. Any OpenAI compatible endpoint works, even a local Ollama.
+2. Clone this repo and start FalkorDB with the included Docker Compose file. You also get the FalkorDB Browser on port 3000, if you want to poke at the graph yourself.
+3. Copy the example env file to a new file called .env.local and put your API key in it.
+4. Install the packages, run the seed script to build the demo company graph, and start the dev server.
+5. Open localhost on port 3100 for the landing page, and the /app page for Gary himself.
 
-## AI assistance disclosure
+The exact commands, all environment variables, and how to plug Gary into Claude Desktop over MCP are in the [technical notes](docs/TECHNICAL.md).
 
-Built during the hackathon with **Claude Code** (Anthropic) as a pair programmer: research, scaffolding and much of the code were written with it, and design decisions, data storylines, reviews and testing were done together. Runtime LLMs: Groq-hosted open-weight models (`gpt-oss-120b`, `gpt-oss-20b`, `qwen3.8-27b`). The graph model, queries and architecture are documented above and in the code.
+## The company inside the demo
 
-## Limitations and next steps
-- Real connectors (Slack/Jira/Notion/GitHub APIs and webhooks) instead of JSON exports. The ingestion pipeline (`lib/ingest/pipeline.ts → ingestLive`) is already per-record and incremental.
-- Permissions that travel with content (`(:Person)-[:CAN_READ]->(:Source)` filters in every tool).
-- One graph per tenant is already supported via `GRAPH_NAME`. A multi-tenant UI is next.
+Kitestring is a made up 21 person startup that sells subscription billing software. Its 65 records across five tools are written so that the right answer always depends on how things connect. The refund policy changes twice. The ledger migration gets pushed back by a SOC2 audit. The only engineer who has run the migration checks is going on parental leave right in the middle of the cutover. A Friday deploy freeze gets lifted. Invoices get an exception to the data deletion rule.
+
+Every person, message and ticket is synthetic. No private or scraped data is used anywhere. The decision extraction was run with an open model and then reviewed by hand, and the live feed always runs the model fresh against the current graph.
+
+## Built with
+
+FalkorDB for the graph, Cypher, graph algorithms and full text search, hosted on FalkorDB Cloud. Next.js on Vercel for the app. Open models served by Groq (gpt oss 120b, with smaller models as automatic fallbacks). Motion, anime.js and Lenis for the animations, with a few components from Magic UI and Animate UI. The Model Context Protocol SDK for the MCP server.
+
+## For the Graph Hacks judges
+
+**Tracks entered.** Track 03 Company Brain is the main one. Gary also fits Track 01, because it acts on connected data with graph algorithms as tools and is exposed over MCP, and Track 02, because its memory persists across sessions and expires when the facts change.
+
+**Everything the rules ask for.** Public repo, this README with setup steps and the graph model, the exact Cypher in the [technical notes](docs/TECHNICAL.md), a demo video on the [site](https://gary-company-brain.vercel.app/#demo), and a [live deployment](https://gary-company-brain.vercel.app).
+
+**About AI help.** I built this during the hackathon with Claude Code as my pair programmer. The idea, the demo company and its stories, the design decisions and all the testing were done together, and it helped me write a lot of the code quickly. The graph model and the queries are documented so you can check every claim yourself.
+
+## What comes next
+
+Real connectors with webhooks instead of exported files, permissions that travel with every record so people only see what they are allowed to see, and one graph per company so a single FalkorDB instance can hold many teams.
+
+<br/>
+
+<p align="center">
+  Built for the Graph Hacks hackathon by Hassaan ❤️<br/>
+  <sub>Thanks to WeMakeDevs and FalkorDB for organising it.</sub>
+</p>

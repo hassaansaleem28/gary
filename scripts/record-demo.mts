@@ -206,6 +206,19 @@ const scenes: Scene[] = [
     await scrollTo(p, /What changed since/);
     await cap(p, "\"What did I miss?\" is scoped to Priya's world in the graph (systems her team owns, projects she touched), including the refund change posted a minute ago.", 5600);
   },
+  // 5c · time machine
+  async (p) => {
+    await setCompare(p, false);
+    await ask(p, "What was our refund policy on July 1?");
+    await scrollTo(p, /As of 2026-07-01/);
+    await cap(p, "Decisions are never deleted, only superseded with a date. So Gary can answer <b>as of any day</b>: what was true then, and what replaced it later.", 5200);
+    const rewind = p.locator("button:has-text('Rewind the whole graph')").first();
+    await click(p, rewind);
+    await sleep(p, 1500);
+    await cap(p, "One click rewinds the <b>whole company graph</b> to July 1, with what Kitestring believed and which docs were already stale.", 4600);
+    await click(p, p.locator("button:visible:has-text('Replay'), button:visible:has-text('Play')").first());
+    await cap(p, "Press play: records appear the day they were written, decisions grey out when replaced, docs turn red the day they go stale.", 7000);
+  },
   // 6 · honesty
   async (p) => {
     await setCompare(p, false);
