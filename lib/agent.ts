@@ -8,7 +8,7 @@ export type AgentEvent =
   | { type: "memory"; memories: Memory[] }
   | { type: "tool"; id: string; name: string; args: Record<string, unknown> }
   | { type: "result"; id: string; name: string; outcome: ToolResult["outcome"]; queries: QueryLog[]; nodes: string[]; data: unknown }
-  | { type: "answer"; text: string; citations: Citation[]; invalidCitations: string[]; model: string; grounded: boolean; nodes: string[] };
+  | { type: "answer"; text: string; citations: Citation[]; invalidCitations: string[]; model: string; grounded: boolean; nodes: string[]; rebuilt: string[] };
 
 export interface Citation {
   key: string;
@@ -31,6 +31,7 @@ Rules:
 - Cite record keys from tool results (evidence, decided_in, key fields such as [github:ledger-158] or [decision:billing-0812c-1]) ONLY in square brackets right after each claim. Never cite tool names or person/team/system keys, e.g. [slack:billing-0812c] [decision:billing-0812c-1]. Never invent keys, people, dates or numbers.
 - If a tool returns unknown_subject, you may retry ONCE with a shorter subject (e.g. one of "similar") or use search. If still nothing, say plainly it is not in the company graph. Never name a team, owner or person that no tool returned.
 - If a recommended person is on_leave/away, say so and name a backup.
+- Only name owners, experts or backups that decision_lineage, who_knows, profile, risk_radar or catch_up returned. Search results are keyword matches: never infer owners or people from them.
 - When a decision replaced older ones, say what changed and when. Flag stale docs that still state old decisions, and name their authors.
 - Only call open_ticket or remember when the user explicitly asks you to act or remember.
 - Be concise: a direct answer first, then 2-5 short bullet points. Plain markdown, no tables.
@@ -45,7 +46,7 @@ export async function* runAgent(question: string, history: Turn[], session: stri
 
   // Memory first: anything Gary learned in earlier sessions about the subjects in this question,
   // flagged if a decision it relied on has since been superseded.
-  const subjects = await subjectsIn(tx, question);
+  const { keys: subjects, vocab: graphVocab } = await subjectsIn(tx, question);
   const memories = await recall(tx, subjects);
   if (memories.length) yield { type: "memory", memories };
   const memoryText = memories.length
@@ -105,10 +106,17 @@ export async function* runAgent(question: string, history: Turn[], session: stri
 
   const allowed = new Set(results.flatMap((r) => r.result.cites));
   let grounded = true;
+  let rebuilt: string[] = [];
   if (!finalText) {
     finalText = composeFromRows(results);
-    grounded = true;
     model = llmFailed ? "graph-only (LLM unavailable)" : model;
+  } else {
+    const vocab = new Set([...graphVocab, ...words(JSON.stringify(results.map((r) => r.result.data))), ...words(question)]);
+    rebuilt = inventedNames(finalText, vocab);
+    if (rebuilt.length) {
+      grounded = false;
+      finalText = composeFromRows(results);
+    }
   }
 
   // Validate: every cited key must come from a tool result in this turn.
@@ -141,13 +149,49 @@ export async function* runAgent(question: string, history: Turn[], session: stri
   if (results.some((r) => r.result.outcome === "ok" && !["open_ticket", "remember"].includes(r.name)))
     await saveEpisode(tx, { session, question, answer: finalText, subjects: [...new Set([...subjects, ...results.flatMap((r) => r.result.nodes.filter((n) => /^(person|team|system|project|topic):/.test(n)))])].slice(0, 6), decisions: valid.filter((k) => k.startsWith("decision:")).concat(nodes.filter((n) => n.startsWith("decision:"))) }).catch(() => {});
 
-  yield { type: "answer", text: finalText.trim(), citations, invalidCitations: invalid, model, grounded, nodes };
+  yield { type: "answer", text: finalText.trim(), citations, invalidCitations: invalid, model, grounded, nodes, rebuilt };
 }
 
-async function subjectsIn(tx: Tracer, question: string): Promise<string[]> {
-  const rows = await tx.ro<{ key: string; name: string; aliases: string[] }>("memory.subjects", `MATCH (n:Entity) WHERE NOT n:Company RETURN n.key AS key, n.name AS name, n.aliases AS aliases`);
+export async function subjectsIn(tx: Tracer, question: string): Promise<{ keys: string[]; vocab: Set<string> }> {
+  const rows = await tx.ro<{ key: string; name: string; aliases: string[]; extra: string | null }>(
+    "memory.subjects",
+    `MATCH (n:Entity) WHERE NOT n:Company RETURN n.key AS key, n.name AS name, n.aliases AS aliases, coalesce(n.role, n.about) AS extra`,
+  );
   const q = question.toLowerCase();
-  return rows.filter((r) => [r.name, ...(r.aliases ?? [])].some((t) => t.length > 2 && new RegExp(`(?<![\\w-])${t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`).test(q))).map((r) => r.key);
+  const keys = rows.filter((r) => [r.name, ...(r.aliases ?? [])].some((t) => t.length > 2 && new RegExp(`(?<![\\w-])${t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`).test(q))).map((r) => r.key);
+  const vocab = new Set(words(rows.map((r) => `${r.name} ${(r.aliases ?? []).join(" ")} ${r.extra ?? ""}`).join(" ")));
+  return { keys, vocab };
+}
+
+const words = (s: string) => s.toLowerCase().match(/[a-z][a-z0-9]+/g) ?? [];
+
+// Plain-English capitalised words that may legitimately start a phrase ("Bottom Line", "Next Steps").
+const COMMON = new Set(
+  `a an the yes no not key points point bottom line next steps step primary secondary contact contacts owner owners owned backup backups current currently policy note notes
+  evidence other others summary short answer answers action actions item items open question questions why what who whom how when where which today tl dr also however therefore
+  so if and or but for with since until from to of on in at by about after before during talk reach ask ping start check update updates use see stale docs doc document
+  documents decision decisions lineage risk risks radar team teams people person expert experts knowledge share records record active replaced superseded monthly annual plans
+  plan refund refunds window days day weeks week months month quick takeaway takeaways overview details detail status timeline history context recommendation recommendations
+  suggested suggestion important warning caveat sources source slack jira notion github meeting meetings ticket tickets thread threads channel help center playbook handbook
+  engineering product follow ups up follow-up you your we our they their he she his her it its this that these those there here is are was were be been being has have had`.split(/\s+/),
+);
+const MONTHS = new Set("january february march april may june july august september october november december jan feb mar apr jun jul aug sep sept oct nov dec monday tuesday wednesday thursday friday saturday sunday".split(" "));
+
+// Guard against invented people/teams: every capitalised name pair (and hyphenated proper noun) must exist in the
+// graph vocabulary or in this turn's tool results. Citations alone can't catch a made-up "Priya Patel".
+export function inventedNames(text: string, vocab: Set<string>): string[] {
+  const clean = text.replace(/\[[^\]]+\]/g, " ").replace(/[*_`#>|]/g, " ");
+  const known = (w: string) => vocab.has(w) || COMMON.has(w) || MONTHS.has(w);
+  const out = new Set<string>();
+  for (const m of clean.matchAll(/\b([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/g)) {
+    const [a, b] = [m[1].toLowerCase(), m[2].toLowerCase()];
+    if (COMMON.has(b) && (COMMON.has(a) || vocab.has(a))) continue;
+    if (!known(a) || !known(b)) out.add(`${m[1]} ${m[2]}`);
+  }
+  for (const m of clean.matchAll(/\b([A-Z][a-z]+(?:-[A-Z][a-z]+)+)\b/g)) {
+    if (m[1].toLowerCase().split("-").some((w) => !known(w))) out.add(m[1]);
+  }
+  return [...out];
 }
 
 function route(q: string): [string, Record<string, unknown>] {

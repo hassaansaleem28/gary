@@ -64,6 +64,24 @@ export async function catchUp(tx: Tracer, args: { since?: string; days?: number;
     { since: sinceMs },
   );
 
+  // Backups come from the graph, not the model: the next-best knowers on what each absent person works on most.
+  const backups = new Map<string, { subject: string; backups: string[] }[]>();
+  for (const a of absences) {
+    const rows = await tx.ro<{ subject: string; backups: string[] }>(
+      "catch_up.backups",
+      `MATCH (p:Person {key:$k})-[:AUTHORED|ASSIGNED|REVIEWED]->(src:Source)-[:MENTIONS|CHANGES]->(s)
+       WHERE s:System OR s:Project
+       WITH p, s, count(DISTINCT src) AS n ORDER BY n DESC LIMIT 2
+       MATCH (o:Person)-[:AUTHORED|ASSIGNED|REVIEWED|ATTENDED|REPORTED]->(src2:Source)-[:MENTIONS|CHANGES]->(s)
+       WHERE o <> p
+       WITH s, o, count(DISTINCT src2) AS m ORDER BY m DESC
+       WITH s, collect(o.name)[0..2] AS backups
+       RETURN s.name AS subject, backups`,
+      { k: a.key },
+    );
+    backups.set(a.key, rows);
+  }
+
   return {
     outcome: decisions.length || tickets.length ? "ok" : "empty",
     data: {
@@ -80,7 +98,7 @@ export async function catchUp(tx: Tracer, args: { since?: string; days?: number;
         decided_in: d.src,
       })),
       open_tickets: tickets,
-      people_going_away: absences.map((a) => ({ person: a.name, from: day(a.from), to: day(a.to) })),
+      people_going_away: absences.map((a) => ({ person: a.name, from: day(a.from), to: day(a.to), suggested_backups_by_subject: backups.get(a.key) ?? [] })),
     },
     nodes: [...(person ? [person.key] : []), ...decisions.flatMap((d) => [d.key, ...d.aboutKeys]), ...tickets.map((t) => t.key), ...absences.map((a) => a.key)],
     cites: [...decisions.map((d) => d.key), ...decisions.map((d) => d.src).filter((s): s is string => !!s), ...tickets.map((t) => t.key)],

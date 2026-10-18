@@ -36,7 +36,7 @@ Every one of these is about **relationships, not text**. A vector index cannot k
 | **Knowledge from multiple sources** | 5 connectors (Slack, Jira, Notion + help center, meetings, GitHub) become `Source` nodes. Authors, reviewers, assignees and attendees become edges. Mentions are linked with a gazetteer read *from the graph itself*. |
 | **Ownership and expertise** | `who_knows` ranks people by recency-weighted, role-weighted traversal (`AUTHORED`, `ASSIGNED`, `REVIEWED`...) and also returns the owning team and lead. It flags people who are about to be on leave. |
 | **Decision lineage** | Decisions are extracted with *graph context* (the LLM sees the currently active decisions) into `(:Decision)-[:SUPERSEDES]->(:Decision)` chains with `DECIDED_IN`, `MADE` and `BECAUSE_OF` edges, traversed with `SUPERSEDES*1..6`. |
-| **Current knowledge** | The live feed ingests a new message. If it contains a decision, older ones are superseded and **every living doc that still `ASSERTS` the old decision is flagged stale**. Memories that relied on it are flagged **outdated**. |
+| **Current knowledge** | `catch_up` answers "what did I miss since…" per person. The live feed ingests a new message. If it contains a decision, older ones are superseded and **every living doc that still `ASSERTS` the old decision is flagged stale**. Memories that relied on it are flagged **outdated**. |
 | **Sourced answers** | Every citation in the answer must be a key returned by a tool in this turn; anything else is stripped. Each answer shows the exact Cypher, params, row counts and timings. |
 
 **Plus:**
@@ -53,7 +53,8 @@ Every one of these is about **relationships, not text**. A vector index cannot k
 4. **"What are our biggest knowledge risks right now?"** Knowledge concentration per system/project, upcoming absences, betweenness-central knowledge brokers and stale docs.
 5. **"Why is usage-based pricing launching Dec 1?"** Multi-hop: Dec 1 replaced Nov 15 because the Atlas ledger cutover is Oct 28, which moved there because of the SOC2 audit change freeze.
 6. **Live feed:** post the preset "CEO changes the refund policy again". Gary extracts a new decision and supersedes the 14-day one. Ask question 1 again: the old memories are marked **OUTDATED** and the answer changes.
-7. **"Who owns the mobile app?"** The answer is **not in the graph**. Gary resolves names strictly, so "mobile app" never silently becomes `web-app`.
+7. **"I'm Priya, back from 3 weeks off. What did I miss?"** `catch_up` scopes recent decisions, reversals, open tickets and absences to Priya's part of the graph (what her team owns and what she has touched).
+8. **"Who owns the mobile app?"** The answer is **not in the graph**. Gary resolves names strictly, so "mobile app" never silently becomes `web-app`.
 
 ## Architecture
 
@@ -65,7 +66,7 @@ Every one of these is about **relationships, not text**. A vector index cannot k
  GitHub ┘   LLM decision extraction  ◄─context── │ Doc ─ASSERTS─► Decision  Finding (mem) │
             (active decisions from the graph)    └────────────▲───────────────────────────┘
                                                               │ parameterised Cypher only
- Question ─► memory recall ─► LLM picks tool(s) ─► Tool catalogue (9) ─► rows ─► answer
+ Question ─► memory recall ─► LLM picks tool(s) ─► Tool catalogue (10) ─► rows ─► answer
                                                    + citation validation + graph highlight
 ```
 
@@ -76,7 +77,7 @@ Every one of these is about **relationships, not text**. A vector index cannot k
 - **MCP:** `@modelcontextprotocol/sdk` stdio server in `mcp/server.ts`.
 
 ### Design rules (borrowed from the organisers' "agent that reasons over a graph" guide)
-- **No model-written Cypher.** The model chooses from 9 fixed, parameterised tools.
+- **No model-written Cypher.** The model chooses from 10 fixed, parameterised tools.
 - **Resolve before reasoning.** Names are matched against the graph (exact → alias → full-text with ≥50% word coverage). Unknown means *unknown_subject*, never a guess.
 - **Answers carry their path.** Citations are validated against tool output, and the UI shows every query.
 - **Memory is just nodes**, linked to what it is about, with timestamps, so it can go stale with the graph.

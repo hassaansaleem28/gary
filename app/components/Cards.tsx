@@ -127,7 +127,10 @@ export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: a
           {data.single_points_of_knowledge?.map((r: any) => (
             <div key={r.key} className="flex flex-wrap items-center gap-1.5">
               <span className="font-medium text-white">{r.subject}</span>
-              <span className="text-muted">→ {r.main_knower} holds {r.share}</span>
+              <span className="text-muted">
+                → {r.main_knower} holds {r.share}
+                {r.next_best_knower ? `, next: ${r.next_best_knower}` : ""}
+              </span>
               {r.main_knower_away_from && <span className="rounded bg-bad/15 px-1.5 text-[10px] font-bold text-bad">AWAY FROM {r.main_knower_away_from}</span>}
             </div>
           ))}
@@ -172,7 +175,12 @@ export function ToolCards({ name, data, onCite, onAsk }: { name: string; data: a
             </div>
           )}
           {data.people_going_away?.length > 0 && (
-            <div className="text-[11.5px] text-muted">Going away: {data.people_going_away.map((a: any) => `${a.person} from ${a.from}`).join(" · ")}</div>
+            <div className="text-[11.5px] text-muted">
+              Going away:{" "}
+              {data.people_going_away
+                .map((a: any) => `${a.person} from ${a.from}${a.suggested_backups_by_subject?.length ? ` (backups: ${a.suggested_backups_by_subject.map((b: any) => `${b.subject} → ${b.backups.join(", ")}`).join("; ")})` : ""}`)
+                .join(" · ")}
+            </div>
           )}
         </div>
       </Box>

@@ -10,7 +10,7 @@ async function main() {
     if (ev.type === "tool") console.log(`🔧 ${ev.name}(${JSON.stringify(ev.args)})`);
     if (ev.type === "result") console.log(`   → ${ev.outcome}: ${ev.queries.map((q) => `${q.label} ${q.rows}r ${q.ms}ms`).join(" | ")}`);
     if (ev.type === "answer") {
-      console.log(`\n💬 [${ev.model}${ev.grounded ? "" : ", ungrounded citations stripped: " + ev.invalidCitations.join(",")}]\n${ev.text}`);
+      console.log(`\n💬 [${ev.model}${ev.rebuilt.length ? ", REBUILT (invented: " + ev.rebuilt.join(", ") + ")" : ""}${ev.invalidCitations.length ? ", stripped: " + ev.invalidCitations.join(",") : ""}]\n${ev.text}`);
       console.log("\n📎", ev.citations.map((c) => `${c.key} (${c.kind})`).join(", "));
     }
   }

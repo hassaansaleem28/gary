@@ -22,7 +22,7 @@ interface Msg {
   text: string;
   steps: Step[];
   memories?: any[];
-  answer?: { citations: Cite[]; model: string; grounded: boolean; invalidCitations: string[] };
+  answer?: { citations: Cite[]; model: string; grounded: boolean; invalidCitations: string[]; rebuilt?: string[] };
   compare?: { text: string; docs: { key: string; title: string }[]; model: string } | "loading";
   pending?: boolean;
 }
@@ -133,7 +133,7 @@ export default function Home() {
             }
             if (ev.type === "answer") {
               ev.citations.forEach((c: Cite) => cites.current.set(c.key, c));
-              patch((m) => ({ ...m, text: ev.text, pending: false, answer: { citations: ev.citations, model: ev.model, grounded: ev.grounded, invalidCitations: ev.invalidCitations } }));
+              patch((m) => ({ ...m, text: ev.text, pending: false, answer: { citations: ev.citations, model: ev.model, grounded: ev.grounded, invalidCitations: ev.invalidCitations, rebuilt: ev.rebuilt } }));
               setHighlight(ev.nodes);
             }
             if (ev.type === "error") patch((m) => ({ ...m, text: `Something went wrong: ${ev.message}`, pending: false }));
@@ -227,7 +227,11 @@ export default function Home() {
                     {m.answer && (
                       <>
                         <span>· {m.answer.model}</span>
-                        <span className={m.answer.grounded ? "text-good" : "text-accent"}>· {m.answer.grounded ? "✓ all citations verified against the graph" : `stripped ${m.answer.invalidCitations.length} unverified citation(s)`}</span>
+                        {m.answer.rebuilt?.length ? (
+                          <span className="text-accent">· ⚠ model named {m.answer.rebuilt.join(", ")} (not in the graph), so the answer was rebuilt from graph rows</span>
+                        ) : (
+                          <span className={m.answer.grounded ? "text-good" : "text-accent"}>· {m.answer.grounded ? "✓ all citations verified against the graph" : `stripped ${m.answer.invalidCitations.length} unverified citation(s)`}</span>
+                        )}
                       </>
                     )}
                   </div>

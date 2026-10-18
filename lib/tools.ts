@@ -283,7 +283,11 @@ async function search(tx: Tracer, { query }: { query: string }): Promise<ToolRes
   );
   return {
     outcome: rows.length ? "ok" : "empty",
-    data: { query, results: rows.map((r) => ({ key: r.key, kind: r.kind, title: r.title, date: day(r.at), author: r.author, excerpt: clip(r.text, 200) })) },
+    data: {
+      query,
+      note: "Keyword matches only. If none of these records directly answers the question, say it is not in the company graph. Never infer owners from them.",
+      results: rows.map((r) => ({ key: r.key, kind: r.kind, title: r.title, date: day(r.at), author: r.author, excerpt: clip(r.text, 200) })),
+    },
     nodes: rows.map((r) => r.key),
     cites: rows.map((r) => r.key),
   };
@@ -321,7 +325,7 @@ async function connect(tx: Tracer, { from, to }: { from: string; to: string }): 
 
 async function riskRadar(tx: Tracer): Promise<ToolResult> {
   // Same expertise weighting as who_knows, for every system/project at once; subjects with little activity are skipped.
-  const concentration = await tx.ro<{ key: string; name: string; top: string; topKey: string; share: number; knowers: number; records: number; awayFrom: number | null }>(
+  const concentration = await tx.ro<{ key: string; name: string; top: string; topKey: string; share: number; knowers: number; records: number; awayFrom: number | null; next: string | null }>(
     "risk.knowledge_concentration",
     `MATCH (s:Entity) WHERE s:System OR s:Project
      MATCH (src:Source)-[:MENTIONS|CHANGES]->(s)
@@ -333,9 +337,9 @@ async function riskRadar(tx: Tracer): Promise<ToolResult> {
      WITH s, p, w, n ORDER BY w DESC
      WITH s, collect({name: p.name, key: p.key, w: w, away: p.away_from}) AS ppl, sum(w) AS total, sum(n) AS records
      WHERE records >= 4
-     WITH s, ppl[0] AS top, total, size(ppl) AS knowers, records
+     WITH s, ppl[0] AS top, ppl[1] AS next, total, size(ppl) AS knowers, records
      WHERE top.w / total >= 0.4
-     RETURN s.key AS key, s.name AS name, top.name AS top, top.key AS topKey, top.w / total AS share, knowers, records, top.away AS awayFrom
+     RETURN s.key AS key, s.name AS name, top.name AS top, top.key AS topKey, top.w / total AS share, knowers, records, top.away AS awayFrom, next.name AS next
      ORDER BY (top.w / total) * CASE WHEN top.away IS NULL THEN 1.0 ELSE 2.0 END DESC LIMIT 5`,
   );
   const brokers = await tx.ro<{ key: string; name: string; score: number }>(
@@ -368,6 +372,7 @@ async function riskRadar(tx: Tracer): Promise<ToolResult> {
         people_involved: c.knowers,
         records: c.records,
         main_knower_away_from: day(c.awayFrom),
+        next_best_knower: c.next,
       })),
       upcoming_absences: away.map((a) => ({ person: a.name, from: day(a.from), to: day(a.to) })),
       knowledge_brokers_betweenness: brokers.map((b) => ({ person: b.name, betweenness: +b.score.toFixed(1) })),

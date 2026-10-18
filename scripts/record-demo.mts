@@ -178,6 +178,13 @@ const scenes: Scene[] = [
     await cap(p, "Memory lives in the graph too: the earlier answer is flagged <b style='color:#ff6b6b'>OUTDATED</b> because the decision it cited was just superseded.", 5600);
     await p.screenshot({ path: path.join(OUT, "memory.png") });
   },
+  // 5b · catch up
+  async (p) => {
+    await setCompare(p, false);
+    await ask(p, "I'm Priya, back from 3 weeks off. What did I miss?");
+    await scrollTo(p, /What changed since/);
+    await cap(p, "\"What did I miss?\" is scoped to Priya's world in the graph (systems her team owns, projects she touched), including the refund change posted a minute ago.", 5600);
+  },
   // 6 · honesty
   async (p) => {
     await setCompare(p, false);
