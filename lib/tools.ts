@@ -544,7 +544,7 @@ export const TOOLS: ChatCompletionTool[] = [
       description: "Time travel: which decisions about a subject were in force on a past date, who made them, what later replaced them, and which docs were already stale then. Use for 'what was our X on <date>', 'back in July', 'before the change'.",
       parameters: {
         type: "object",
-        properties: { ...subjectParam, date: { type: "string", description: "The date to look at, YYYY-MM-DD" } },
+        properties: { ...subjectParam, date: { type: "string", description: "The date to look at, YYYY-MM-DD. If the user gives no year, use the current year." } },
         required: ["subject", "date"],
       },
     },

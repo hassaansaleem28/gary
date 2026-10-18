@@ -84,6 +84,7 @@ export async function* runAgent(question: string, history: Turn[], session: stri
       try {
         args = JSON.parse(call.function.arguments || "{}");
       } catch {}
+      if (call.function.name === "as_of" && typeof args.date === "string") args.date = fixYear(args.date, question);
       yield { type: "tool", id: call.id, name: call.function.name, args };
       const result = await runTool(tx, call.function.name, args, session).catch(
         (e): ToolResult => ({ outcome: "empty", data: { error: String((e as Error).message) }, nodes: [], cites: [] }),
@@ -152,6 +153,17 @@ export async function* runAgent(question: string, history: Turn[], session: stri
     await saveEpisode(tx, { session, question, answer: finalText, subjects: [...new Set([...subjects, ...results.flatMap((r) => r.result.nodes.filter((n) => /^(person|team|system|project|topic):/.test(n)))])].slice(0, 6), decisions: valid.filter((k) => k.startsWith("decision:")).concat(nodes.filter((n) => n.startsWith("decision:"))) }).catch(() => {});
 
   yield { type: "answer", text: finalText.trim(), citations, invalidCitations: invalid, model, grounded, nodes, rebuilt };
+}
+
+// Small models love to put "July 1" in some random past year. If the question never mentions that year,
+// use the most recent such date that isn't in the future.
+function fixYear(date: string, question: string): string {
+  const m = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m || question.includes(m[1])) return date;
+  const now = new Date();
+  let y = now.getUTCFullYear();
+  if (Date.UTC(y, +m[2] - 1, +m[3]) > now.getTime()) y -= 1;
+  return `${y}-${m[2]}-${m[3]}`;
 }
 
 export async function subjectsIn(tx: Tracer, question: string): Promise<{ keys: string[]; vocab: Set<string> }> {

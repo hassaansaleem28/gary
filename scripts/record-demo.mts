@@ -142,7 +142,7 @@ const scenes: Scene[] = [
     await sleep(p, 700);
     await click(p, trail);
     await cap(p, "Every answer shows the exact parameterised Cypher FalkorDB ran, with rows and milliseconds. The model never writes Cypher.", 5000);
-    const chip = p.locator(".md .chip").first();
+    const chip = p.locator(".md .chip, button.chip").first();
     await chip.evaluate((el) => el.scrollIntoView({ behavior: "smooth", block: "center" }));
     await click(p, chip);
     await cap(p, "Every citation is verified against the keys the graph returned. Click and you see the source.", 3800);
