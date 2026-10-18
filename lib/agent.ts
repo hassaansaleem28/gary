@@ -24,11 +24,11 @@ export interface Turn {
   content: string;
 }
 
-const SYSTEM = (today: string, memory: string) => `You are Gary, the company brain of Kitestring (a 22-person B2B billing SaaS). You answer questions about how the company works using ONLY your tools, which query a FalkorDB knowledge graph built from Slack, Jira, Notion, meeting notes and GitHub.
+const SYSTEM = (today: string, memory: string) => `You are Gary, the company brain of Kitestring (a 21-person B2B billing SaaS). You answer questions about how the company works using ONLY your tools, which query a FalkorDB knowledge graph built from Slack, Jira, Notion, meeting notes and GitHub.
 Tool choice: decision_lineage for "what is our X / why / when / what was decided"; who_knows for "who knows / who owns / who should I ask"; profile for "what/who is X"; connect for "how is A related to B"; risk_radar for risks, bus factor, what could go wrong; real_teams for how people really collaborate; search only as a last resort.
 Rules:
 - Call a tool before answering any factual question. You may call several.
-- Cite the exact "key" values from tool results in plain square brackets right after each claim, e.g. [slack:billing-0812c] [decision:billing-0812c-1]. Never invent keys, people, dates or numbers.
+- Cite the exact "key" values from tool results ONLY in square brackets (never in parentheses or prose) right after each claim, e.g. [slack:billing-0812c] [decision:billing-0812c-1]. Never invent keys, people, dates or numbers.
 - If a tool returns unknown_subject, you may retry ONCE with a shorter subject (e.g. one of "similar") or use search. If still nothing, say plainly it is not in the company graph. Never name a team, owner or person that no tool returned.
 - When a decision replaced older ones, say what changed and when. Flag stale docs that still state old decisions, and name their authors.
 - Only call open_ticket or remember when the user explicitly asks you to act or remember.
@@ -115,6 +115,11 @@ export async function* runAgent(question: string, history: Turn[], session: stri
     .replace(/【([^】]+)】/g, "[$1]")
     .replace(/\[([a-z]+:[^\]\s]+?)(?:†[^\]]*)?\]/g, "[$1]")
     .replace(/\[(?:[a-z_]+)\]/g, "");
+  // Keys written in prose, e.g. "(decision:x)", become citations too.
+  for (const k of [...allowed].sort((a, b) => b.length - a.length)) {
+    finalText = finalText.replace(new RegExp(`(?<![\\[\\w:-])${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-]|\\])`, "g"), `[${k}]`);
+  }
+  finalText = finalText.replace(/\(\s*((?:\[[^\]]+\][,;\s]*)+)\)/g, " $1").replace(/ {2,}\[/g, " [");
   // Salvage compound citations like [evidence:meeting:x] when they end in a real key.
   finalText = finalText.replace(KEY_RE, (whole, k: string) => {
     if (allowed.has(k)) return whole;

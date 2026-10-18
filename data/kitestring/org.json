@@ -1,5 +1,5 @@
 {
-  "company": { "key": "company:kitestring", "name": "Kitestring", "about": "Fictional 22-person B2B SaaS startup selling a subscription-billing platform. All data is synthetic." },
+  "company": { "key": "company:kitestring", "name": "Kitestring", "about": "Fictional 21-person B2B SaaS startup selling a subscription-billing platform. All data is synthetic." },
   "teams": [
     { "key": "team:leadership", "name": "Leadership" },
     { "key": "team:billing", "name": "Billing" },

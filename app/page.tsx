@@ -54,7 +54,12 @@ export default function Home() {
 
   const loadGraph = useCallback(async () => {
     const r = await fetch("/api/graph").then((r) => r.json());
-    setGraph({ nodes: r.nodes, links: r.links });
+    // keep existing node objects (and their x/y) so the layout doesn't restart on every refresh
+    setGraph((prev) => {
+      const old = new Map(prev.nodes.map((n) => [n.id, n]));
+      const nodes = (r.nodes as GNode[]).map((n) => (old.has(n.id) ? Object.assign(old.get(n.id)!, n) : n));
+      return { nodes, links: r.links };
+    });
     setStale(new Set(r.stale));
   }, []);
   useEffect(() => {

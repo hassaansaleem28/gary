@@ -125,7 +125,7 @@ export function GraphView({ data, highlight, staleDocs, onNodeClick }: { data: {
           if (showLabel) {
             const text = n.name.length > 34 ? n.name.slice(0, 32) + "…" : n.name;
             const fs = 11 / scale;
-            ctx.font = `${ent ? 600 : 400} ${fs}px var(--font-geist-sans), sans-serif`;
+            ctx.font = `${ent ? 600 : 400} ${fs}px system-ui, -apple-system, "Segoe UI", sans-serif`;
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillStyle = on ? "rgba(231,235,243,0.95)" : "rgba(231,235,243,0.3)";
