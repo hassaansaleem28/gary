@@ -682,7 +682,7 @@ export function Numbers() {
 /* ─────────────────────────── demo video ─────────────────────────── */
 
 // The demo video lives on YouTube (set NEXT_PUBLIC_DEMO_YOUTUBE_ID); until then the section shows the poster.
-const DEMO_YOUTUBE_ID = process.env.NEXT_PUBLIC_DEMO_YOUTUBE_ID || "x5YpXz-GukM";
+const DEMO_YOUTUBE_ID = process.env.NEXT_PUBLIC_DEMO_YOUTUBE_ID || "J9fUnDdBwuw";
 
 export function Demo() {
   const [play, setPlay] = useState(false);

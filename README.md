@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="https://heygary.vercel.app"><b>Try it live</b></a> &nbsp;·&nbsp;
-  <a href="https://youtu.be/x5YpXz-GukM"><b>Watch the demo</b></a> &nbsp;·&nbsp;
+  <a href="https://www.youtube.com/watch?v=J9fUnDdBwuw"><b>Watch the demo</b></a> &nbsp;·&nbsp;
   <a href="docs/TECHNICAL.md"><b>Technical notes</b></a>
 </p>
 
@@ -181,7 +181,7 @@ FalkorDB for the graph, Cypher, graph algorithms and full text search, hosted on
 
 **Tracks entered.** Track 03 Company Brain is the main one. Gary also fits Track 01, because it acts on connected data with graph algorithms as tools and is exposed over MCP, and Track 02, because its memory persists across sessions and expires when the facts change.
 
-**Everything the rules ask for.** Public repo, this README with setup steps and the graph model, the exact Cypher in the [technical notes](docs/TECHNICAL.md), a [demo video](https://youtu.be/x5YpXz-GukM), and a [live deployment](https://heygary.vercel.app).
+**Everything the rules ask for.** Public repo, this README with setup steps and the graph model, the exact Cypher in the [technical notes](docs/TECHNICAL.md), a [demo video](https://www.youtube.com/watch?v=J9fUnDdBwuw), and a [live deployment](https://heygary.vercel.app).
 
 **About AI help.** I built this during the hackathon with Claude Code as my pair programmer. The idea, the demo company and its stories, the design decisions and all the testing were done together, and it helped me write a lot of the code quickly. The graph model and the queries are documented so you can check every claim yourself.
 
