@@ -10,14 +10,14 @@
 </p>
 
 <p align="center">
-  <a href="https://gary-company-brain.vercel.app"><img alt="Live demo" src="https://img.shields.io/badge/live%20demo-gary--company--brain.vercel.app-ff5a1f?style=for-the-badge"></a>
+  <a href="https://heygary.vercel.app"><img alt="Live demo" src="https://img.shields.io/badge/live%20demo-heygary.vercel.app-ff5a1f?style=for-the-badge"></a>
   <a href="https://www.wemakedevs.org/hackathons/falkordb"><img alt="Graph Hacks 2026" src="https://img.shields.io/badge/Graph%20Hacks%202026-Company%20Brain-17140f?style=for-the-badge"></a>
   <img alt="Built on FalkorDB" src="https://img.shields.io/badge/built%20on-FalkorDB-ff5a1f?style=for-the-badge">
 </p>
 
 <p align="center">
-  <a href="https://gary-company-brain.vercel.app"><b>Try it live</b></a> &nbsp;·&nbsp;
-  <a href="https://gary-company-brain.vercel.app/#demo"><b>Watch the demo</b></a> &nbsp;·&nbsp;
+  <a href="https://heygary.vercel.app"><b>Try it live</b></a> &nbsp;·&nbsp;
+  <a href="https://heygary.vercel.app/#demo"><b>Watch the demo</b></a> &nbsp;·&nbsp;
   <a href="docs/TECHNICAL.md"><b>Technical notes</b></a>
 </p>
 
@@ -85,7 +85,7 @@ You can also just ask: *"What was our refund policy on July 1?"* Gary answers wi
 
 ## Try it yourself, it takes two minutes
 
-Open the [live demo](https://gary-company-brain.vercel.app/app) and ask these in order:
+Open the [live demo](https://heygary.vercel.app/app) and ask these in order:
 
 1. **Can a customer get a full refund after 20 days?** Look at the plain chatbot answer underneath, then press **Fix it**.
 2. **Who should I talk to about ledger-db?** Notice the leave warning and the backups.
@@ -169,7 +169,7 @@ FalkorDB for the graph, Cypher, graph algorithms and full text search, hosted on
 
 **Tracks entered.** Track 03 Company Brain is the main one. Gary also fits Track 01, because it acts on connected data with graph algorithms as tools and is exposed over MCP, and Track 02, because its memory persists across sessions and expires when the facts change.
 
-**Everything the rules ask for.** Public repo, this README with setup steps and the graph model, the exact Cypher in the [technical notes](docs/TECHNICAL.md), a demo video on the [site](https://gary-company-brain.vercel.app/#demo), and a [live deployment](https://gary-company-brain.vercel.app).
+**Everything the rules ask for.** Public repo, this README with setup steps and the graph model, the exact Cypher in the [technical notes](docs/TECHNICAL.md), a demo video on the [site](https://heygary.vercel.app/#demo), and a [live deployment](https://heygary.vercel.app).
 
 **About AI help.** I built this during the hackathon with Claude Code as my pair programmer. The idea, the demo company and its stories, the design decisions and all the testing were done together, and it helped me write a lot of the code quickly. The graph model and the queries are documented so you can check every claim yourself.
 
