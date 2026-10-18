@@ -8,10 +8,12 @@ Gary is a company-brain agent built on **FalkorDB**. It reads a company's Slack,
 > **Tracks entered: Track 03 Company Brain (primary), Track 01 Agents That Act on Connected Data, Track 02 Agent Memory and Coordination**
 
 - **Live demo:** https://gary-company-brain.vercel.app (FalkorDB Cloud ap-south-1 + Vercel bom1)
-- **Demo video:** [`docs/demo.mp4`](docs/demo.mp4) (3 min captioned walkthrough, recorded by driving the real app)
+- **Demo video:** [`docs/demo.mp4`](docs/demo.mp4) (4½ min captioned walkthrough, recorded by driving the deployed app)
 - **Repo:** https://github.com/hassaansaleem28/gary
 
-![Gary answering a refund question with decision lineage and stale docs](docs/refund.png)
+![Gary landing page: the hero graph plays the refund-policy story](docs/landing.png)
+
+![The /app workspace: step trail, decision lineage, stale docs and the highlighted graph](docs/workspace.png)
 
 ---
 
@@ -55,6 +57,15 @@ Every one of these is about **relationships, not text**. A vector index cannot k
 6. **Live feed:** post the preset "CEO changes the refund policy again". Gary extracts a new decision and supersedes the 14-day one. Ask question 1 again: the old memories are marked **OUTDATED** and the answer changes.
 7. **"I'm Priya, back from 3 weeks off. What did I miss?"** `catch_up` scopes recent decisions, reversals, open tickets and absences to Priya's part of the graph (what her team owns and what she has touched).
 8. **"Who owns the mobile app?"** The answer is **not in the graph**. Gary resolves names strictly, so "mobile app" never silently becomes `web-app`.
+
+## The interface
+
+- **`/`: landing page.** Lenis smooth scrolling. The hero graph assembles itself with an **anime.js** timeline and plays the real refund-policy story: the question arrives, a pulse walks to the current decision, older decisions are struck and their `SUPERSEDES` edges turn red, stale docs ring red, and Gary answers. Below it: a "plain RAG vs Gary" comparison, an animated-beam pipeline (5 sources → FalkorDB → Gary), a feature grid where each tile is a small live animation, live counters read from the graph, the demo video, and the Cypher behind it all.
+- **Gary is a character.** An SVG face whose eyes follow your cursor, which blinks on a random anime.js cadence and reflects the agent's state: *thinking* while tools run, *happy* when an answer is verified, and *confused* when something isn't in the graph.
+- **`/app`: the workspace.** A Manus-style step trail ("Tracing decision lineage · refund policy", with the Cypher one click away), insight cards built from the tool rows, a themed force graph that highlights exactly the nodes an answer used, the live feed, and a source drawer. On phones, it switches between Chat, Graph and Live with an animated tab control. Deep links: `/app?q=…` asks on arrival, `/app?tab=live` opens the live feed.
+- **Light and dark** paper-and-ink themes, switched with a circular view-transition reveal.
+
+Built with **motion** (motion.dev), **anime.js v4**, **Lenis**, **next-themes**, the **Animate UI** theme-toggler primitive, and **Magic UI** animated beam, number ticker, backlight and marquee. The components are vendored in `components/ui/` with their source noted.
 
 ## Architecture
 
@@ -190,7 +201,7 @@ docker compose up -d                 # FalkorDB on :6379 and FalkorDB Browser on
 cp .env.example .env.local           # add your LLM_API_KEY
 pnpm install
 pnpm seed                            # builds the Kitestring graph from data/kitestring (cached extractions)
-pnpm dev --port 3100                 # http://localhost:3100
+pnpm dev --port 3100                 # http://localhost:3100 (landing) and /app (workspace)
 ```
 
 Other scripts:

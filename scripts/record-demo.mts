@@ -71,19 +71,20 @@ async function click(p: Page, l: Locator) {
   await sleep(p, 300);
 }
 async function setCompare(p: Page, on: boolean) {
-  const box = p.locator("input[type=checkbox]");
-  if ((await box.isChecked()) !== on) await box.click();
+  const sw = p.locator("button[role=switch]");
+  if (((await sw.getAttribute("aria-checked")) === "true") !== on) await sw.click();
 }
-const answers = (p: Page) => p.locator("text=/citations verified|unverified citation/").count();
+const DONE = /citations verified|unverified citation|rebuilt from graph rows/g;
+const answers = (p: Page) => p.evaluate((re) => document.body.innerText.match(new RegExp(re, "g"))?.length ?? 0, DONE.source);
 async function ask(p: Page, q: string, waitCompare = false) {
   const before = await answers(p);
-  const input = p.locator("input[placeholder^='Ask anything']");
+  const input = p.locator("input[placeholder^='Ask how']");
   await point(p, input);
   await input.click();
   await input.pressSequentially(q, { delay: 32 });
   await sleep(p, 350);
   await p.keyboard.press("Enter");
-  await p.waitForFunction((n) => document.body.innerText.match(/citations verified|unverified citation/g)?.length === n + 1, before, { timeout: 90_000 });
+  await p.waitForFunction(([n, re]) => (document.body.innerText.match(new RegExp(re as string, "g"))?.length ?? 0) >= (n as number) + 1, [before, DONE.source] as const, { timeout: 90_000 });
   if (waitCompare) await p.waitForFunction(() => !document.body.innerText.includes("retrieving top documents"), null, { timeout: 60_000 });
   await sleep(p, 1200);
 }
@@ -94,14 +95,34 @@ const scrollTo = async (p: Page, text: string | RegExp) => {
 
 type Scene = (p: Page) => Promise<void>;
 const scenes: Scene[] = [
-  // 0 · intro
+  // 0 · intro on the landing page
   async (p) => {
-    await sleep(p, 1500);
-    await cap(p, "Every company has a <b style='color:#f5b942'>Gary</b>: the one person who knows <i>why</i> everything is the way it is.", 3800);
-    await cap(p, "When Gary leaves, the company forgets. So we built a Gary that never leaves, on <b style='color:#f5b942'>FalkorDB</b>.", 3800);
-    await cap(p, "Kitestring (synthetic startup): 65 records from Slack, Jira, Notion, meetings and GitHub → one graph of people, systems and <b>decisions</b>.", 4500);
-    await point(p, p.locator("canvas").first());
-    await cap(p, "", 400);
+    await p.goto(`${URL}/`, { waitUntil: "networkidle" });
+    await sleep(p, 2600);
+    await cap(p, "Every company has a <b style='color:#ff6a2c'>Gary</b>: the one person who knows <i>why</i> everything is the way it is.", 3800);
+    for (const [x, y] of [[1250, 260], [980, 520], [1400, 700], [1240, 200]]) await p.mouse.move(x, y, { steps: 18 });
+    await cap(p, "When Gary leaves, the company forgets. So we built a Gary that never leaves, on <b style='color:#ff6a2c'>FalkorDB</b>.", 3600);
+    await cap(p, "The hero is the real story from the graph: a newer decision <b>supersedes</b> the old one, and the docs that still assert it go <b style='color:#ff5d50'>stale</b>.", 4200);
+    const beat = async (wheels: number, html: string, ms: number) => {
+      await cap(p, "", 0);
+      for (let i = 0; i < wheels; i++) {
+        await p.mouse.wheel(0, 760);
+        await sleep(p, 1100);
+      }
+      await sleep(p, 500);
+      await cap(p, html, ms);
+    };
+    await beat(2, "Plain RAG quotes the stale doc. Gary walks the graph and knows it was <b>superseded</b>.", 3400);
+    await beat(2, "Five sources, one graph: Slack, Jira, Notion, meetings and GitHub become people, systems and decisions.", 3400);
+    await beat(2, "Every capability is a graph traversal, not a prompt.", 2800);
+    await cap(p, "", 0);
+    const toggle = p.locator("button[aria-label^='Switch to']").first();
+    await point(p, toggle);
+    await toggle.click();
+    await cap(p, "Light or dark, with a circular view-transition reveal.", 2200);
+    await toggle.click();
+    await sleep(p, 900);
+    await cap(p, "Now let's ask Gary something real.", 1800);
   },
   // 1 · stale knowledge vs decision lineage
   async (p) => {
@@ -109,14 +130,14 @@ const scenes: Scene[] = [
     await cap(p, "A support rep asks a simple question…", 1800);
     await cap(p, "", 0);
     await ask(p, "Can a customer get a full refund after 20 days?", true);
-    await scrollTo(p, "Same question, plain chunk-retrieval RAG");
+    await scrollTo(p, /plain chunk-retrieval RAG/);
     await cap(p, "Plain RAG over the same records says <b style='color:#ff6b6b'>yes, 30 days</b>. It retrieved a policy that was superseded in August.", 4500);
     await scrollTo(p, /Decision lineage ·/);
     await cap(p, "Gary walks <code>SUPERSEDES*</code> edges: <b style='color:#3ddc97'>14 days</b>, decided by Maya on Aug 12 because of BILL-212, replacing two older decisions.", 5200);
     await scrollTo(p, /still state an old decision/);
     await cap(p, "And it finds the docs that are now <b style='color:#ff6b6b'>lying</b>: 3 living docs still say 30 days, with their authors, plus the confused #support thread.", 5000);
     await p.screenshot({ path: path.join(OUT, "refund.png") });
-    const trail = p.locator("button:has-text('decision_lineage')").first();
+    const trail = p.locator("button:has-text('Tracing decision lineage')").first();
     await trail.evaluate((el) => el.scrollIntoView({ behavior: "smooth", block: "start" }));
     await sleep(p, 700);
     await click(p, trail);
@@ -132,7 +153,7 @@ const scenes: Scene[] = [
     await cap(p, "Gary doesn't stop at finding. Let's fix it.", 1500);
     const before = await answers(p);
     await click(p, fix);
-    await p.waitForFunction((n) => document.body.innerText.match(/citations verified|unverified citation/g)?.length === n + 1, before, { timeout: 90_000 });
+    await p.waitForFunction(([n, re]) => (document.body.innerText.match(new RegExp(re as string, "g"))?.length ?? 0) >= (n as number) + 1, [before, DONE.source] as const, { timeout: 90_000 });
     await sleep(p, 1500);
     await scrollTo(p, /Action taken/);
     await cap(p, "Tickets are written back into the graph and assigned to each doc's owner (red nodes).", 4200);
@@ -163,7 +184,7 @@ const scenes: Scene[] = [
   // 5 · live feed + memory goes stale
   async (p) => {
     await setCompare(p, false);
-    await click(p, p.locator("button:has-text('Live feed')"));
+    await click(p, p.locator("button:visible:has-text('Live feed')").first());
     await cap(p, "The company keeps talking. The CEO posts a new refund policy in #billing…", 2600);
     await click(p, p.locator("button:has-text('CEO changes the refund policy again')"));
     await sleep(p, 800);
@@ -171,7 +192,7 @@ const scenes: Scene[] = [
     await p.waitForSelector("text=/Superseded:|No new decision|Failed/", { timeout: 90_000 });
     await sleep(p, 800);
     await cap(p, "Gary links it, extracts the decision <i>against what the graph already knows</i>, and automatically <b>supersedes</b> the 14-day rule.", 5200);
-    await click(p, p.locator("button:has-text('Company graph')"));
+    await click(p, p.locator("button:visible:has-text('Company graph')").first());
     await ask(p, "Can a customer get a full refund after 20 days?");
     await p.locator("text=Remembered from earlier").first().evaluate((el) => el.scrollIntoView({ behavior: "smooth", block: "start" }));
     await sleep(p, 900);
@@ -193,7 +214,7 @@ const scenes: Scene[] = [
   },
   // 7 · outro
   async (p) => {
-    await click(p, p.locator("button:has-text('How it works')"));
+    await click(p, p.locator("button:visible:has-text('How it works')").first());
     await sleep(p, 600);
     await cap(p, "FalkorDB does the thinking: <code>SUPERSEDES*</code> lineage · stale-doc detection · <code>algo.SPpaths</code> · betweenness · label propagation · memory that knows when it's stale · MCP server", 6000);
     await cap(p, "<span style='font-size:30px;font-weight:900'>gary<span style='color:#f5b942'>.</span></span><br/>Every company has a Gary. This one never leaves.<br/><span style='color:#8691a8;font-size:16px'>github.com/hassaansaleem28/gary</span>", 5000);
@@ -215,7 +236,7 @@ async function main() {
     const page = await ctx.newPage();
     for (let attempt = 1; ; attempt++) {
       try {
-        await page.goto(URL, { waitUntil: "networkidle", timeout: 45_000 });
+        await page.goto(`${URL}/app`, { waitUntil: "networkidle", timeout: 45_000 });
         break;
       } catch (e) {
         if (attempt >= 4) throw e;

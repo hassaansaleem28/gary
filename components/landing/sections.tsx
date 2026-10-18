@@ -98,7 +98,7 @@ export function Hero() {
               <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
             </Link>
             <button onClick={() => lenis?.scrollTo("#demo", { offset: -80, duration: 1.4 })} className="inline-flex items-center gap-2 rounded-full border border-line bg-panel/60 px-5 py-3 text-[15px] text-ink backdrop-blur transition-colors hover:border-line-strong">
-              <Play size={15} className="text-accent" /> Watch the 3-min demo
+              <Play size={15} className="text-accent" /> Watch the demo
             </button>
           </motion.div>
 
@@ -616,7 +616,7 @@ export function Demo() {
   const [play, setPlay] = useState(false);
   return (
     <section id="demo" className="mx-auto max-w-6xl px-5 py-24">
-      <SectionTitle eyebrow="See it think" title={<>Three minutes with <span className="italic text-accent">Gary.</span></>} sub="Recorded by driving the real, deployed app: stale answers, decision lineage, a live policy change, memory going stale, and an honest “I don't know”." />
+      <SectionTitle eyebrow="See it think" title={<>Watch Gary <span className="italic text-accent">work.</span></>} sub="Recorded by driving the real, deployed app: stale answers, decision lineage, a live policy change, memory going stale, and an honest “I don't know”." />
       <Reveal className="mt-12">
         <Backlight blur={34} className="rounded-3xl">
           <div className="relative aspect-video overflow-hidden rounded-3xl border border-line bg-panel">
